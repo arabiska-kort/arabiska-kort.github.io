@@ -58,7 +58,7 @@ h1 span { font-family: var(--font-ar); font-weight: 700; color: var(--muted); fo
 .count { font-size: 0.95rem; }
 .pages { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 0.9rem; }
 .pages a { color: var(--muted); text-decoration: none; }
-.pages a[aria-current] { color: var(--text); font-weight: 700; }
+.pages a[aria-current] { color: var(--fg); font-weight: 700; }
 .score b { color: var(--good); }
 
 .typerow { display: flex; gap: 8px; }
@@ -356,8 +356,9 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px s
 // leb/irq/msa: { f: [[arabiska, translitteration], (plural)], n: anmärkning, s: kapitel }. Utan s = ordet finns inte i boken för den dialekten och är ifyllt i efterhand.
 // Libanesisk translitteration är bokens (9 = ʿ, H = ḥ, ʃ = š, x = ḫ, G = ġ, versaler = emfatiska, dubbla vokaler = långa).
 const WORDS = __WORDS__;
-// Dialektsidorna (libanesiska/, standardarabiska/) byggs med en låst dialekt och ligger en mapp ner.
-const LOCK = __LOCK__, BASE = LOCK ? "../" : "";
+// Appen ligger i alla/, libanesiska/ och standardarabiska/, en mapp under startsidan och ljud/.
+// Dialektsidorna byggs med en låst dialekt.
+const LOCK = __LOCK__, BASE = "../";
 
 const POS = { noun: "Substantiv", prep: "Preposition", verb: "Verb", adj: "Adjektiv", pron: "Pronomen", q: "Frågeord", other: "Fras" };
 const DIALECT = { leb: "Libanesiska", irq: "Irakiska", msa: "Standardarabiska" };
@@ -494,7 +495,7 @@ document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("scrim"
 $("new-type").addEventListener("click", openSheet);
 
 // Länkar mellan sidorna. En dialektsida visar alla ord i sin dialekt och har inga egna val.
-const PAGES = [["", "Alla", null], ["libanesiska/", "Libanesiska", "leb"], ["standardarabiska/", "Standardarabiska", "msa"]];
+const PAGES = [["alla/", "Alla", null], ["libanesiska/", "Libanesiska", "leb"], ["standardarabiska/", "Standardarabiska", "msa"]];
 // Öppnad direkt från disken visar webbläsaren inte index.html i en mapp av sig själv.
 const page = p => BASE + p + (location.protocol === "file:" ? "index.html" : "");
 $("pages").innerHTML = PAGES.map(([p, name, k]) => `<a href="${page(p)}"${k === LOCK ? ' aria-current="page"' : ""}>${name}</a>`).join("");

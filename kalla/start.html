@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<title>Arabiska ordkort</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;800&display=swap">
+<style>
+/* Startsidan: välj dialekt. Samma färger och typsnitt som appen (template.html). */
+:root {
+  --bg: #EDF0F4;
+  --surface: #FFFFFF;
+  --fg: #17202B;
+  --muted: #5B6676;
+  --line: #D6DCE4;
+  --accent: #1F5FD1;
+  --font-ui: "Figtree", system-ui, -apple-system, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #0E131A; --surface: #18202B; --fg: #E9EDF2; --muted: #98A3B3; --line: #2A3442; --accent: #6FA2FF; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --bg: #0E131A; --surface: #18202B; --fg: #E9EDF2; --muted: #98A3B3; --line: #2A3442; --accent: #6FA2FF; color-scheme: dark; }
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font-ui); font-size: 15px;
+  padding: 0 max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px));
+}
+main { max-width: 420px; margin: 0 auto; padding-block: 40px 28px; display: flex; flex-direction: column; gap: 14px; }
+h1 { font-weight: 800; font-size: 1.9rem; margin: 0; letter-spacing: -0.01em; }
+p.lead { margin: 0 0 8px; color: var(--muted); }
+a.choice {
+  display: flex; align-items: center; gap: 16px; padding: 16px; border-radius: 16px;
+  background: var(--surface); border: 1.5px solid var(--line); color: inherit; text-decoration: none;
+  transition: border-color .15s, transform .15s;
+}
+a.choice:hover { border-color: var(--accent); }
+a.choice:active { transform: scale(.99); }
+a.choice:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.flags { flex: none; width: 66px; display: flex; flex-direction: column; gap: 4px; align-items: center; }
+.flags svg { display: block; width: 66px; height: 44px; border-radius: 4px; box-shadow: 0 0 0 1px var(--line); }
+.flags.many { flex-direction: row; gap: 3px; }
+.flags.many svg { width: 21px; height: 14px; border-radius: 2px; }
+.txt b { display: block; font-size: 1.15rem; font-weight: 800; }
+.txt small { display: block; color: var(--muted); margin-top: 2px; line-height: 1.35; }
+@media (prefers-reduced-motion: reduce) { a.choice { transition: none; } }
+</style>
+</head>
+<body>
+<!-- Flaggorna ritas en gång här och återanvänds med <use>. Förenklade: ceder och emblem är stiliserade. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="flag-lb" viewBox="0 0 90 60">
+    <rect width="90" height="60" fill="#ED1C24"/>
+    <rect y="15" width="90" height="30" fill="#fff"/>
+    <path fill="#00A651" d="M45 17l7 9h-4l8 8h-6l9 8H31l9-8h-6l8-8h-4z"/>
+    <rect x="43.5" y="41" width="3" height="4" fill="#00A651"/>
+  </symbol>
+  <symbol id="flag-iq" viewBox="0 0 90 60">
+    <rect width="90" height="60" fill="#fff"/>
+    <rect width="90" height="20" fill="#CE1126"/>
+    <rect y="40" width="90" height="20" fill="#000"/>
+    <text x="45" y="34" text-anchor="middle" font-size="11" font-weight="700" fill="#007A3D" font-family="'Noto Naskh Arabic', 'Arial', serif">الله أكبر</text>
+  </symbol>
+  <symbol id="flag-al" viewBox="0 0 90 60">
+    <rect width="90" height="60" fill="#009639"/>
+    <circle cx="45" cy="30" r="15" fill="none" stroke="#fff" stroke-width="2.5" stroke-dasharray="3 1.6"/>
+    <circle cx="45" cy="30" r="9" fill="#fff"/>
+    <circle cx="48.5" cy="28" r="8" fill="#009639"/>
+  </symbol>
+</svg>
+
+<main>
+  <h1>Arabiska ordkort</h1>
+  <p class="lead">Välj vilken arabiska du vill öva på.</p>
+
+  <a class="choice" href="libanesiska/">
+    <span class="flags"><svg role="img" aria-label="Libanons flagga"><use href="#flag-lb"/></svg></span>
+    <span class="txt"><b>Libanesiska</b><small>Orden från Spoken Lebanese</small></span>
+  </a>
+
+  <a class="choice" href="standardarabiska/">
+    <span class="flags"><svg role="img" aria-label="Arabförbundets flagga"><use href="#flag-al"/></svg></span>
+    <span class="txt"><b>Standardarabiska</b><small>Orden från Standard lektion 1–5</small></span>
+  </a>
+
+  <a class="choice" href="alla/">
+    <span class="flags many">
+      <svg role="img" aria-label="Libanons flagga"><use href="#flag-lb"/></svg>
+      <svg role="img" aria-label="Iraks flagga"><use href="#flag-iq"/></svg>
+      <svg role="img" aria-label="Arabförbundets flagga"><use href="#flag-al"/></svg>
+    </span>
+    <span class="txt"><b>Alla dialekter</b><small>Libanesiska, irakiska och standardarabiska. Du väljer själv vad korten visar.</small></span>
+  </a>
+</main>
+<script>
+// Öppnad direkt från disken visar webbläsaren inte index.html i en mapp av sig själv.
+if (location.protocol === "file:") document.querySelectorAll("a.choice").forEach(a => a.href = a.getAttribute("href") + "index.html");
+</script>
+</body>
+</html>
