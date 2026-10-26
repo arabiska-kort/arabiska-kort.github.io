@@ -560,7 +560,7 @@ document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("scrim"
 $("new-type").addEventListener("click", openSheet);
 
 // Länkar mellan sidorna. En dialektsida visar alla ord i sin dialekt och har inga egna val.
-const PAGES = [["alla/", "Alla", null, ["lb", "iq", "al"]], ["libanesiska/", "Libanesiska", "leb", ["lb"]], ["standardarabiska/", "Standardarabiska", "msa", ["al"]]];
+const PAGES = [["libanesiska/", "Libanesiska", "leb", ["lb"]], ["standardarabiska/", "Standardarabiska", "msa", ["al"]], ["alla/", "Alla", null, ["lb", "iq", "al"]]];
 const FLAG = { lb: "Libanons flagga", iq: "Iraks flagga", al: "Arabförbundets flagga" };
 const flags = fs => fs.map(f => `<svg role="img" aria-label="${FLAG[f]}"><use href="#flag-${f}"/></svg>`).join("");
 // Öppnad direkt från disken visar webbläsaren inte index.html i en mapp av sig själv.
