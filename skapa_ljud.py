@@ -51,6 +51,7 @@ UTTAL = {
     "msa|رَجُل": "رَجُل",   # man: med sukun hördes l:et dåligt
     "msa|رِجال": "رِجال",   # män: med sukun lät det rigel
     "msa|جَميل": "جَميل",   # vacker: med sukun lät det janil
+    "msa|طَويل": "طَويل",   # lång: med sukun försvann l
 }
 PAUSE = 3.2  # sekunder mellan anrop, för gratisnivåns gräns på 20 anrop i minuten
 
