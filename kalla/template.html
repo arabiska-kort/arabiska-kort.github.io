@@ -357,7 +357,7 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px s
 // Libanesisk translitteration är bokens (9 = ʿ, H = ḥ, ʃ = š, x = ḫ, G = ġ, versaler = emfatiska, dubbla vokaler = långa).
 const WORDS = __WORDS__;
 // Dialektsidorna (libanesiska/, irakiska/, standardarabiska/) byggs med en låst dialekt och ligger en mapp ner.
-const LOCK = __LOCK__, BASE = LOCK ? "../" : "", KEY = LOCK ? "arabiska-val-" + LOCK : "arabiska-val";
+const LOCK = __LOCK__, BASE = LOCK ? "../" : "";
 
 const POS = { noun: "Substantiv", prep: "Preposition", verb: "Verb", adj: "Adjektiv", pron: "Pronomen", q: "Frågeord", other: "Fras" };
 const DIALECT = { leb: "Libanesiska", irq: "Irakiska", msa: "Standardarabiska" };
@@ -400,8 +400,7 @@ function translit(s, dialect, sys) {
 // --- Val av kort: dialekter, kapitel och transkription. Senaste valet minns i den här webbläsaren. ---
 function load(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } }
 function save(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
-let cur = load(KEY, null);
-if (!cur && LOCK) cur = { dialect: [LOCK], translit: {}, chapters: [] };
+let cur = LOCK ? { dialect: [LOCK], translit: {}, chapters: [], trv: 2 } : load("arabiska-val", null);
 if (!cur) {
   // Börja från den korttyp som var vald i den tidigare versionen, om det finns en.
   const old = load("arabiska-korttyper", null), id = load("arabiska-aktiv-korttyp", null);
@@ -409,8 +408,7 @@ if (!cur) {
   cur = t ? { dialect: dialects(t), translit: t.translit, chapters: t.chapters || [] } : { dialect: ["leb", "msa"], translit: {}, chapters: [] };
 }
 // En tidigare version saknade "Bokens" och sparade DIN i stället. Återställ till bokens en gång.
-if (!cur.trv) { for (const k in (cur.translit || {})) if (cur.translit[k] === "din") cur.translit[k] = "book"; cur.trv = 2; save(KEY, cur); }
-if (LOCK) Object.assign(cur, { dialect: [LOCK], svDialect: [LOCK], frontD: LOCK });
+if (!cur.trv) { for (const k in (cur.translit || {})) if (cur.translit[k] === "din") cur.translit[k] = "book"; cur.trv = 2; save("arabiska-val", cur); }
 const active = () => cur;
 // Arabiska på framsidan: första valda dialekt som har ordet.
 const frontAr = t => t.front === "ar";
@@ -487,7 +485,7 @@ $("sheet").addEventListener("submit", e => {
   e.preventDefault();
   const t = sheetChoice();
   if (!t.dialect.length) return;
-  cur = t; save(KEY, cur);
+  cur = t; save("arabiska-val", cur);
   closeSheet(); renderTypes(); start(pool());
 });
 $("cancel").addEventListener("click", closeSheet);
@@ -495,7 +493,7 @@ $("scrim").addEventListener("click", e => { if (e.target === $("scrim")) closeSh
 document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("scrim").hidden) closeSheet(); });
 $("new-type").addEventListener("click", openSheet);
 
-// Länkar mellan sidorna. På en dialektsida finns bara den dialekten att välja.
+// Länkar mellan sidorna. En dialektsida visar alla ord i sin dialekt och har inga egna val.
 const PAGES = [["", "Alla", null], ["libanesiska/", "Libanesiska", "leb"], ["irakiska/", "Irakiska", "irq"], ["standardarabiska/", "Standardarabiska", "msa"]];
 // Öppnad direkt från disken visar webbläsaren inte index.html i en mapp av sig själv.
 const page = p => BASE + p + (location.protocol === "file:" ? "index.html" : "");
@@ -503,10 +501,7 @@ $("pages").innerHTML = PAGES.map(([p, name, k]) => `<a href="${page(p)}"${k === 
 if (LOCK) {
   $("title").textContent = DIALECT[LOCK];
   document.title = DIALECT[LOCK] + " ordkort";
-  for (const k of ORDER_D) if (k !== LOCK) $("d-" + k).closest(".dopt").hidden = true;
-  $("d-" + LOCK).disabled = true;
-  $("front-d").hidden = true;
-  $("dfield").querySelector("legend").textContent = "Transkription";
+  $("new-type").closest(".typerow").hidden = true;
 }
 
 // --- Övning ---
