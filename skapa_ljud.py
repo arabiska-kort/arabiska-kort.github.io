@@ -54,6 +54,7 @@ UTTAL = {
     "msa|طَويل": "طَويل",   # lång: med sukun försvann l
     "msa|وَالله": "وَاللّٰهِي",   # vid Gud: utan vokal blev det wallāh, kortet säger wa-llāhi
     "msa|بَيْت": "بَيْت",   # hus: med sukun lät det bayd
+    "msa|سَقْف": "سَقْف",   # tak: med sukun lät det saf
 }
 PAUSE = 3.2  # sekunder mellan anrop, för gratisnivåns gräns på 20 anrop i minuten
 
