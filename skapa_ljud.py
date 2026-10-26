@@ -46,6 +46,7 @@ UTTAL = {
     "msa|أُمّ": "أُومّ",   # mor: lät som emm
     "irq|أم": "أُومّ",
     "msa|كُرّاسة": "كُرّاسَهْ",   # skrivhäfte: med ة hördes inte -a
+    "msa|في": "فِيي",   # i: lät som bara f
 }
 PAUSE = 3.2  # sekunder mellan anrop, för gratisnivåns gräns på 20 anrop i minuten
 
