@@ -43,6 +43,7 @@ UTTAL = {
     "msa|جِدًّا": "جِدَّنْ",   # väldigt: med ًّا blev det jiddana
     "msa|غَلَط": "غَلَطْ، غَلَطْ|sista",   # fel: ensamt hördes inte ṭ
     "leb|غلط": "غَلَطْ، غَلَطْ|sista",
+    "msa|أُمّ": "أُومّ",   # mor: lät som emm
 }
 PAUSE = 3.2  # sekunder mellan anrop, för gratisnivåns gräns på 20 anrop i minuten
 
