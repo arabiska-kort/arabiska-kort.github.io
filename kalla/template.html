@@ -512,9 +512,10 @@ let filter = "all", theme = "", chapter = "", query = "", deck = [], i = 0;
 
 function shuffle(a) { a = a.slice(); for (let k = a.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); [a[k], a[j]] = [a[j], a[k]]; } return a; }
 // Orden som valet av dialekter och kapitel ger, utan filtren ovanför korten.
+// En dialektsida tar bara ord från boken för den dialekten (de som har ett kapitel).
 function poolFor(t) {
   const ds = dialects(t), cs = typeChapters(t);
-  return WORDS.filter(w => ds.some(k => w[k]) && (!cs.length || inChapters(w, cs)));
+  return WORDS.filter(w => (LOCK ? w[LOCK] && w[LOCK].s : ds.some(k => w[k])) && (!cs.length || inChapters(w, cs)));
 }
 // Sökningen bortser från vokaltecken, accenter och stora bokstäver, så "kitab" hittar kitāb och "كتاب" hittar كِتاب.
 const fold = t => String(t).normalize("NFD").replace(/[\u0300-\u036f\u064b-\u0652\u0670ʿʾ'’9]/g, "").replace(/[أإآ]/g, "ا").toLowerCase();
