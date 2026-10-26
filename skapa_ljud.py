@@ -33,6 +33,12 @@ UTTAL = {
     "leb|تعبان": "تَعْبان|långsam",   # trött: ayn hörs knappt
     "irq|تعبان": "تَعْبان|långsam",
     "msa|تَعْبان": "تَعْبان|långsam",
+    "leb|أفكار": "أَفْكَارْ",   # idéer: utan sukun lägger rösten till en vokal efter r
+    "irq|أفكار": "أَفْكَارْ",
+    "msa|أَفْكار": "أَفْكارْ",
+    "leb|أخبار": "أَخْبَارْ",   # nyheter: samma sak
+    "irq|أخبار": "أَخْبَارْ",
+    "msa|أَلْمانِيا": "أَلْمَانِيَا|långsam",   # Tyskland: rösten svalde l och ā
 }
 PAUSE = 3.2  # sekunder mellan anrop, för gratisnivåns gräns på 20 anrop i minuten
 
@@ -171,6 +177,28 @@ def vocalize(ar, tr, dialect):
     return go(0, 0)
 
 
+def keep_final_vowel(ar):
+    """Rösten läser sista ordet i pausform och tappar sista korta vokalen (فَعَلْتُ blir faʿalt).
+    En lång vokalbokstav efter vokaltecknet gör att vokalen hörs (faʿaltu).
+    Samma sak med -un och -in (أَهالٍ blir ahāl): där skrivs n:et ut."""
+    s = ar.rstrip()
+    end = {FATHA: "ا", DAMMA: "و", KASRA: "ي"}.get(s[-1:])
+    if s[-1:] in ("ٌ", "ٍ"):
+        return s[:-1] + {"ٌ": DAMMA, "ٍ": KASRA}[s[-1]] + "ن"
+    return s + end if end else ar
+
+
+# Konsonanter, alltså inte ا och ة (و och ي ligger utanför intervallen). Inte heller ه, som i
+# dialekterna ofta är ändelsen -a eller -u (أهله, ahla).
+FINAL_CONS = re.compile("((?![اةه])[ء-غف-هگچپ])(?=[\\s؟،!?.]*$)")
+
+
+def final_sukun(text):
+    """Sukun på sista konsonanten, annars lägger rösten till en vokal efter den (أفكار blir afkāro).
+    Varje "m. / f."-form läses för sig och får sin egen."""
+    return " / ".join(FINAL_CONS.sub(r"\1" + SUKUN, p.strip()) for p in text.split("/"))
+
+
 def synth(key, region, lang, voice, text):
     text, slow = (text[:-len("|långsam")], True) if text.endswith("|långsam") else (text, False)
     # "m. / f."-former läses som två ord med en kort paus emellan.
@@ -231,7 +259,9 @@ def main():
         d, ar, tr = todo[k]
         if k in UTTAL:
             return UTTAL[k]
-        return (d in ("leb", "irq") and tr and vocalize(ar, tr, d)) or ar
+        if d == "msa":
+            return final_sukun(keep_final_vowel(ar))
+        return final_sukun((d in ("leb", "irq") and tr and vocalize(ar, tr, d)) or ar)
     left = [k for k in todo if not (k in index and os.path.exists(os.path.join(OUT, index[k])))
             or spoken.get(k, todo[k][1]) != say(k)]
     print(f"{len(todo)} uppläsningar totalt, {len(left)} kvar att skapa.")

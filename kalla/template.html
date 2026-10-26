@@ -56,6 +56,9 @@ h1 { font-family: var(--font-display); font-weight: 800; font-size: 1.6rem; marg
 h1 span { font-family: var(--font-ar); font-weight: 700; color: var(--muted); font-size: 1.15rem; margin-inline-start: 6px; }
 .score, .count { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--muted); white-space: nowrap; }
 .count { font-size: 0.95rem; }
+.pages { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 0.9rem; }
+.pages a { color: var(--muted); text-decoration: none; }
+.pages a[aria-current] { color: var(--text); font-weight: 700; }
 .score b { color: var(--good); }
 
 .typerow { display: flex; gap: 8px; }
@@ -248,9 +251,10 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px s
 <div class="app">
   <header>
     <div class="top">
-      <h1>Arabiska</h1>
+      <h1 id="title">Arabiska</h1>
       <div class="count" id="count">Kort 1 av 1</div>
     </div>
+    <nav class="pages" id="pages" aria-label="Dialekter"></nav>
     <div class="typerow">
       <button class="ghost" id="new-type">Skapa nya kort</button>
     </div>
@@ -352,6 +356,8 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px s
 // leb/irq/msa: { f: [[arabiska, translitteration], (plural)], n: anmärkning, s: kapitel }. Utan s = ordet finns inte i boken för den dialekten och är ifyllt i efterhand.
 // Libanesisk translitteration är bokens (9 = ʿ, H = ḥ, ʃ = š, x = ḫ, G = ġ, versaler = emfatiska, dubbla vokaler = långa).
 const WORDS = __WORDS__;
+// Dialektsidorna (libanesiska/, irakiska/, standardarabiska/) byggs med en låst dialekt och ligger en mapp ner.
+const LOCK = __LOCK__, BASE = LOCK ? "../" : "", KEY = LOCK ? "arabiska-val-" + LOCK : "arabiska-val";
 
 const POS = { noun: "Substantiv", prep: "Preposition", verb: "Verb", adj: "Adjektiv", pron: "Pronomen", q: "Frågeord", other: "Fras" };
 const DIALECT = { leb: "Libanesiska", irq: "Irakiska", msa: "Standardarabiska" };
@@ -394,7 +400,8 @@ function translit(s, dialect, sys) {
 // --- Val av kort: dialekter, kapitel och transkription. Senaste valet minns i den här webbläsaren. ---
 function load(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } }
 function save(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
-let cur = load("arabiska-val", null);
+let cur = load(KEY, null);
+if (!cur && LOCK) cur = { dialect: [LOCK], translit: {}, chapters: [] };
 if (!cur) {
   // Börja från den korttyp som var vald i den tidigare versionen, om det finns en.
   const old = load("arabiska-korttyper", null), id = load("arabiska-aktiv-korttyp", null);
@@ -402,7 +409,8 @@ if (!cur) {
   cur = t ? { dialect: dialects(t), translit: t.translit, chapters: t.chapters || [] } : { dialect: ["leb", "msa"], translit: {}, chapters: [] };
 }
 // En tidigare version saknade "Bokens" och sparade DIN i stället. Återställ till bokens en gång.
-if (!cur.trv) { for (const k in (cur.translit || {})) if (cur.translit[k] === "din") cur.translit[k] = "book"; cur.trv = 2; save("arabiska-val", cur); }
+if (!cur.trv) { for (const k in (cur.translit || {})) if (cur.translit[k] === "din") cur.translit[k] = "book"; cur.trv = 2; save(KEY, cur); }
+if (LOCK) Object.assign(cur, { dialect: [LOCK], svDialect: [LOCK], frontD: LOCK });
 const active = () => cur;
 // Arabiska på framsidan: första valda dialekt som har ordet.
 const frontAr = t => t.front === "ar";
@@ -479,13 +487,27 @@ $("sheet").addEventListener("submit", e => {
   e.preventDefault();
   const t = sheetChoice();
   if (!t.dialect.length) return;
-  cur = t; save("arabiska-val", cur);
+  cur = t; save(KEY, cur);
   closeSheet(); renderTypes(); start(pool());
 });
 $("cancel").addEventListener("click", closeSheet);
 $("scrim").addEventListener("click", e => { if (e.target === $("scrim")) closeSheet(); });
 document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("scrim").hidden) closeSheet(); });
 $("new-type").addEventListener("click", openSheet);
+
+// Länkar mellan sidorna. På en dialektsida finns bara den dialekten att välja.
+const PAGES = [["", "Alla", null], ["libanesiska/", "Libanesiska", "leb"], ["irakiska/", "Irakiska", "irq"], ["standardarabiska/", "Standardarabiska", "msa"]];
+// Öppnad direkt från disken visar webbläsaren inte index.html i en mapp av sig själv.
+const page = p => BASE + p + (location.protocol === "file:" ? "index.html" : "");
+$("pages").innerHTML = PAGES.map(([p, name, k]) => `<a href="${page(p)}"${k === LOCK ? ' aria-current="page"' : ""}>${name}</a>`).join("");
+if (LOCK) {
+  $("title").textContent = DIALECT[LOCK];
+  document.title = DIALECT[LOCK] + " ordkort";
+  for (const k of ORDER_D) if (k !== LOCK) $("d-" + k).closest(".dopt").hidden = true;
+  $("d-" + LOCK).disabled = true;
+  $("front-d").hidden = true;
+  $("dfield").querySelector("legend").textContent = "Transkription";
+}
 
 // --- Övning ---
 let filter = "all", theme = "", chapter = "", query = "", deck = [], i = 0;
@@ -701,9 +723,9 @@ function toast(msg) {
 let audioMap = {}, audio = null;
 // ljud/index.js fungerar även när sidan öppnas direkt från disken, där Chrome stoppar fetch.
 const ljudJs = document.createElement("script");
-ljudJs.src = "ljud/index.js";
+ljudJs.src = BASE + "ljud/index.js";
 ljudJs.onload = () => { if (window.LJUD) audioMap = window.LJUD; };
-ljudJs.onerror = () => fetch("ljud/index.json").then(r => r.ok ? r.json() : {}).then(m => { audioMap = m || {}; }).catch(() => {});
+ljudJs.onerror = () => fetch(BASE + "ljud/index.json").then(r => r.ok ? r.json() : {}).then(m => { audioMap = m || {}; }).catch(() => {});
 document.head.append(ljudJs);
 function speak(btn) {
   const file = audioMap[btn.dataset.dialect + "|" + btn.dataset.say];
@@ -711,7 +733,7 @@ function speak(btn) {
     if (audio) audio.pause();
     if ("speechSynthesis" in window) speechSynthesis.cancel();
     document.querySelectorAll(".say.playing").forEach(x => x.classList.remove("playing"));
-    audio = new Audio("ljud/" + file);
+    audio = new Audio(BASE + "ljud/" + file);
     btn.classList.add("playing");
     audio.onended = audio.onerror = () => btn.classList.remove("playing");
     audio.play().catch(() => btn.classList.remove("playing"));

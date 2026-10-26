@@ -6,7 +6,7 @@ Här ligger allt som appen och utskriften byggs från.
 |---|---|
 | `template.html` | Appen: utseende och all kod. Orden stoppas in där det står `__WORDS__`. |
 | `data/ord.json` | Alla 370 ord med libanesiska, irakiska och standardarabiska. Här ändrar du ord. |
-| `bygg.py` | Bygger `../webb/index.html` och `../webb/ord.json`. |
+| `bygg.py` | Bygger `../index.html` (alla dialekter), `../ord.json` och dialektsidorna `../libanesiska/`, `../irakiska/` och `../standardarabiska/`. |
 | `gen_print.py`, `pdf.js` | Gör utskrifts-PDF:en. |
 | `fonts/` | Typsnitten som bakas in i utskriften. |
 | `data/*.tsv` | Råmaterial: ordlistan från böckerna (`list.tsv`, `lessons345.tsv`), irakiska former (`irq.tsv`) och jag-former för verb (`verbs_jag.tsv`). Behövs inte för att bygga. |

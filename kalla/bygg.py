@@ -1,12 +1,13 @@
-﻿"""Bygger appen frÃ¥n template.html och data/ord.json.
+"""Bygger appen från template.html och data/ord.json.
 
-KÃ¶r i den hÃ¤r mappen:
+Kör i den här mappen:
 
     python bygg.py
 
-Resultatet hamnar i ../webb/index.html och ../webb/ord.json.
+Resultatet hamnar i ../index.html (alla dialekter) och ../ord.json, och i
+../libanesiska/, ../irakiska/ och ../standardarabiska/ med bara en dialekt.
 """
-import os, shutil
+import json, os, shutil
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 WEBB = os.path.join(HERE, "..")
@@ -14,8 +15,12 @@ WEBB = os.path.join(HERE, "..")
 tpl = open(os.path.join(HERE, "template.html"), encoding="utf-8").read()
 words = open(os.path.join(HERE, "data", "ord.json"), encoding="utf-8").read().strip()
 os.makedirs(WEBB, exist_ok=True)
-with open(os.path.join(WEBB, "index.html"), "w", encoding="utf-8") as f:
-    f.write(tpl.replace("__WORDS__", words))
+# Mapp och låst dialekt för varje sida. Huvudsidan har alla.
+SIDOR = {"": None, "libanesiska": "leb", "irakiska": "irq", "standardarabiska": "msa"}
+for mapp, dialekt in SIDOR.items():
+    os.makedirs(os.path.join(WEBB, mapp), exist_ok=True)
+    with open(os.path.join(WEBB, mapp, "index.html"), "w", encoding="utf-8") as f:
+        f.write(tpl.replace("__LOCK__", json.dumps(dialekt)).replace("__WORDS__", words))
 shutil.copyfile(os.path.join(HERE, "data", "ord.json"), os.path.join(WEBB, "ord.json"))
-print("Klart: ../webb/index.html")
+print("Klart: ../index.html, ../libanesiska/, ../irakiska/, ../standardarabiska/")
 
