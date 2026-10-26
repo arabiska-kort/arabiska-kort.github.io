@@ -187,12 +187,16 @@ def vocalize(ar, tr, dialect):
 def keep_final_vowel(ar):
     """Rösten läser sista ordet i pausform och tappar sista korta vokalen (فَعَلْتُ blir faʿalt).
     En lång vokalbokstav efter vokaltecknet gör att vokalen hörs (faʿaltu).
-    Samma sak med -un och -in (أَهالٍ blir ahāl): där skrivs n:et ut."""
-    s = ar.rstrip()
-    end = {FATHA: "ا", DAMMA: "و", KASRA: "ي"}.get(s[-1:])
-    if s[-1:] in ("ٌ", "ٍ"):
-        return s[:-1] + {"ٌ": DAMMA, "ٍ": KASRA}[s[-1]] + "ن"
-    return s + end if end else ar
+    Samma sak med -un och -in (أَهالٍ blir ahāl): där skrivs n:et ut.
+    Varje "m. / f."-form för sig, och ? eller ! sist räknas inte (حالُكَ؟ / حالُكِ؟)."""
+    def one(p):
+        m = re.match(r"(.*?)([\s؟،!?.]*)$", p.strip(), re.S)
+        s, tail = m.group(1), m.group(2)
+        if s[-1:] in ("ٌ", "ٍ"):
+            return s[:-1] + {"ٌ": DAMMA, "ٍ": KASRA}[s[-1]] + "ن" + tail
+        end = {FATHA: "ا", DAMMA: "و", KASRA: "ي"}.get(s[-1:])
+        return s + (end or "") + tail
+    return " / ".join(one(p) for p in ar.split("/")) if "/" in ar else one(ar)
 
 
 # Konsonanter, alltså inte ا och ة (و och ي ligger utanför intervallen). Inte heller ه, som i
@@ -234,6 +238,19 @@ def last_word(wav):
         w.setparams(params)
         w.writeframes(pcm[start * step:(end + 10) * step].tobytes())
     return out.getvalue()
+
+
+TA_END = re.compile(r"(.)([ً-ْ]*)ة[ً-ْ]*(?=[\s؟،!?.]*$)")
+
+
+def final_ta(text):
+    """ة sist i ordet läses -a, men rösten tappar det ofta (كُرّاسة blev kurrās).
+    Med ه och sukun i stället hörs -a. Varje "m. / f."-form för sig."""
+    def fix(m):
+        # Efter ا (فَتاة, fatāh) behövs ingen fatha.
+        marks = m.group(2) if FATHA in m.group(2) or m.group(1) == "ا" else m.group(2) + FATHA
+        return m.group(1) + marks + "ه" + SUKUN
+    return " / ".join(TA_END.sub(fix, p.strip()) for p in text.split("/"))
 
 
 def synth(key, region, lang, voice, text, wav=False):
@@ -298,7 +315,7 @@ def main():
         if k in UTTAL:
             return UTTAL[k]
         if d == "msa":
-            return final_sukun(keep_final_vowel(ar))
+            return final_sukun(final_ta(keep_final_vowel(ar)))
         return final_sukun((d in ("leb", "irq") and tr and vocalize(ar, tr, d)) or ar)
     left = [k for k in todo if not (k in index and os.path.exists(os.path.join(OUT, index[k])))
             or spoken.get(k, todo[k][1]) != say(k)]
