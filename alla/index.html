@@ -254,8 +254,6 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px s
 .dopt:not(:has(input:checked)) .trsel { opacity: .45; }
 .dopt:not(:has(input:checked)) #front-d { display: none; }
 .trhelp { margin: 4px 0 0; color: var(--muted); font-size: 0.8rem; line-height: 1.5; }
-.chapters { grid-template-columns: 1fr 1fr; }
-.chapters label { align-items: center; }
 .sheet .actions { display: flex; gap: 8px; flex-wrap: wrap; }
 .sheet .save { color: var(--fg); flex: 1 1 100%; }
 .sheet .ghost { flex: 1; }
@@ -391,10 +389,6 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px s
       </div>
       <p class="trhelp">DIN 31635 skrivs som <i>šukran, ʿafwan</i>, Arabizi som <i>shukran, 3afwan</i>. Ingen visar bara arabisk skrift.</p>
     </fieldset>
-    <fieldset class="field">
-      <legend>Kapitel (inget val ger alla ord)</legend>
-      <div class="opts chapters" id="t-chapters"></div>
-    </fieldset>
     <div class="field">
       <span>Förhandsvisning</span>
       <div class="pv" id="preview"></div>
@@ -465,6 +459,8 @@ if (!cur) {
   cur = t ? { dialect: dialects(t), translit: t.translit, chapters: t.chapters || [] } : { dialect: ["leb", "msa"], translit: {}, chapters: [] };
 }
 // En tidigare version saknade "Bokens" och sparade DIN i stället. Återställ till bokens en gång.
+// Kapitel valdes tidigare i Skapa nya kort. Nu görs det bara i filtret, så ett gammalt val tas bort.
+cur.chapters = [];
 if (!cur.trv) { for (const k in (cur.translit || {})) if (cur.translit[k] === "din") cur.translit[k] = "book"; cur.trv = 2; save("arabiska-val", cur); }
 const active = () => cur;
 // Arabiska på framsidan: första valda dialekt som har ordet.
@@ -498,7 +494,8 @@ function sheetChoice() {
     dialect: ar ? [$("front-d").value] : checkedD,
     svDialect: checkedD,
     translit: Object.fromEntries(ORDER_D.map(k => [k, $("tr-" + k).value])),
-    chapters: [...document.querySelectorAll('input[name="chapter"]:checked')].map(x => x.value),
+    // Kapitel väljs i filtret ovanför korten, inte här.
+    chapters: [],
     front: (document.querySelector('input[name="front"]:checked') || {}).value || "sv",
     frontD: $("front-d").value,
     trv: 2,
@@ -528,9 +525,8 @@ function renderPreview(newWord) {
     + ds.map((k, n) => block(w, k, n ? "secondary" : "primary", trOf(t, k))).join("");
 }
 function openSheet() {
-  const t = active(), ds = dialects(t), cs = typeChapters(t);
+  const t = active(), ds = dialects(t);
   for (const k of ORDER_D) $("d-" + k).checked = (t.svDialect || ds).includes(k);
-  $("t-chapters").innerHTML = CHAPTERS.map(c => `<label><input type="checkbox" name="chapter" value="${esc(c)}"${cs.includes(c) ? " checked" : ""}><span><b>${esc(c.replace(" lektion", "").replace(" kap.", " kap"))}</b></span></label>`).join("");
   for (const k of ORDER_D) $("tr-" + k).value = trOf(t, k);
   document.querySelectorAll('input[name="front"]').forEach(x => x.checked = x.value === (t.front || "sv"));
   $("front-d").value = t.frontD || ds[0] || "leb";
