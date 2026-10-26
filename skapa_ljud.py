@@ -34,11 +34,16 @@ UTTAL = {
     "leb|تعبان": "تَعْبان|långsam",   # trött: ayn hörs knappt
     "irq|تعبان": "تَعْبان|långsam",
     "msa|تَعْبان": "تَعْبان|långsam",
-    "leb|أفكار": "أَفْكَارْ",   # idéer: utan sukun lägger rösten till en vokal efter r
+    # Sista bokstaven får inget sukun (med sukun lät rajul, bayt och saqf sämre), utom här, där
+    # rösten annars lägger till en vokal (afkāro, shayn) eller tappar sista ljudet.
+    "leb|أفكار": "أَفْكَارْ",   # idéer
     "irq|أفكار": "أَفْكَارْ",
     "msa|أَفْكار": "أَفْكارْ",
     "leb|أخبار": "أَخْبَارْ",   # nyheter: samma sak
     "irq|أخبار": "أَخْبَارْ",
+    "msa|شَيْء": "شَيْءْ",   # sak: lät som shayn
+    "msa|وَرَق": "وَرَقْ",   # papper
+    "leb|مطبخ": "مَطْبَخْ",   # kök
     "msa|أَلْمانِيا": "أَلْمَانِيَا|långsam",   # Tyskland: rösten svalde l och ā
     "msa|جِدًّا": "جِدَّنْ",   # väldigt: med ًّا blev det jiddana
     "msa|غَلَط": "غَلَطْ، غَلَطْ|sista",   # fel: ensamt hördes inte ṭ
@@ -48,13 +53,7 @@ UTTAL = {
     "msa|كُرّاسة": "كُرّاسَهْ",   # skrivhäfte: med ة hördes inte -a
     "msa|في": "فِيي",   # i: lät som bara f
     "leb|في": "فِيي",   # det finns: samma sak
-    "msa|رَجُل": "رَجُل",   # man: med sukun hördes l:et dåligt
-    "msa|رِجال": "رِجال",   # män: med sukun lät det rigel
-    "msa|جَميل": "جَميل",   # vacker: med sukun lät det janil
-    "msa|طَويل": "طَويل",   # lång: med sukun försvann l
     "msa|وَالله": "وَاللّٰهِي",   # vid Gud: utan vokal blev det wallāh, kortet säger wa-llāhi
-    "msa|بَيْت": "بَيْت",   # hus: med sukun lät det bayd
-    "msa|سَقْف": "سَقْف",   # tak: med sukun lät det saf
 }
 PAUSE = 3.2  # sekunder mellan anrop, för gratisnivåns gräns på 20 anrop i minuten
 
@@ -208,17 +207,6 @@ def keep_final_vowel(ar):
     return " / ".join(one(p) for p in ar.split("/")) if "/" in ar else one(ar)
 
 
-# Konsonanter, alltså inte ا och ة (و och ي ligger utanför intervallen). Inte heller ه, som i
-# dialekterna ofta är ändelsen -a eller -u (أهله, ahla).
-FINAL_CONS = re.compile("((?![اةه])[ء-غف-هگچپ])(?=[\\s؟،!?.]*$)")
-
-
-def final_sukun(text):
-    """Sukun på sista konsonanten, annars lägger rösten till en vokal efter den (أفكار blir afkāro).
-    Varje "m. / f."-form läses för sig och får sin egen."""
-    return " / ".join(FINAL_CONS.sub(r"\1" + SUKUN, p.strip()) for p in text.split("/"))
-
-
 def flags(text):
     """Texten och valen efter | (långsam, sista)."""
     text, *f = text.split("|")
@@ -324,8 +312,8 @@ def main():
         if k in UTTAL:
             return UTTAL[k]
         if d == "msa":
-            return final_sukun(final_ta(keep_final_vowel(ar)))
-        return final_sukun((d in ("leb", "irq") and tr and vocalize(ar, tr, d)) or ar)
+            return final_ta(keep_final_vowel(ar))
+        return (d in ("leb", "irq") and tr and vocalize(ar, tr, d)) or ar
     left = [k for k in todo if not (k in index and os.path.exists(os.path.join(OUT, index[k])))
             or spoken.get(k, todo[k][1]) != say(k)]
     print(f"{len(todo)} uppläsningar totalt, {len(left)} kvar att skapa.")
