@@ -57,9 +57,12 @@ h1 span { font-family: var(--font-ar); font-weight: 700; color: var(--muted); fo
 .score, .count { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--muted); white-space: nowrap; }
 .count { font-size: 0.95rem; }
 h1 a { color: inherit; text-decoration: none; }
-.pages { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 0.9rem; }
-.pages a { color: var(--muted); text-decoration: none; }
+.pages { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 12px; font-size: 0.85rem; padding-top: 4px; }
+.pages a { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); text-decoration: none; }
 .pages a[aria-current] { color: var(--fg); font-weight: 700; }
+.pages svg { display: block; width: 21px; height: 14px; border-radius: 2px; box-shadow: 0 0 0 1px var(--line); }
+.pages .many { display: inline-flex; gap: 2px; }
+.pages .many svg { width: 15px; height: 10px; }
 .score b { color: var(--good); }
 
 .typerow { display: flex; gap: 8px; }
@@ -80,6 +83,15 @@ select, input[type="text"] {
   border: 1.5px solid var(--line); background: var(--surface); color: var(--muted); cursor: pointer;
 }
 .filters button[aria-pressed="true"] { color: var(--fg); border-color: var(--fg); }
+/* Samma färg som ordklassen har på korten. */
+.filters button[data-f="noun"] { --k: var(--noun); }
+.filters button[data-f="verb"] { --k: var(--verb); }
+.filters button[data-f="adj"] { --k: var(--adj); }
+.filters button[data-f="prep"] { --k: var(--prep); }
+.filters button[data-f="pron"] { --k: var(--pron); }
+.filters button[data-f="q"] { --k: var(--q); }
+.filters button[data-f="other"] { --k: var(--other); }
+.filters button:not([data-f="all"])::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-inline-end: 6px; vertical-align: -1px; background: var(--k); }
 .filters button[data-f="noun"][aria-pressed="true"] { color: var(--noun); border-color: var(--noun); background: var(--noun-soft); }
 .filters button[data-f="verb"][aria-pressed="true"] { color: var(--verb); border-color: var(--verb); background: var(--verb-soft); }
 .filters button[data-f="prep"][aria-pressed="true"] { color: var(--prep); border-color: var(--prep); background: var(--prep-soft); }
@@ -92,6 +104,7 @@ select, input[type="text"] {
 .searchrow { display: flex; gap: 8px; }
 .searchrow .search { flex: 1; }
 #filter-btn { display: flex; align-items: center; gap: 6px; }
+#filter-btn svg { width: 17px; height: 17px; flex: none; }
 #filter-btn[aria-expanded="true"] { border-color: var(--fg); }
 .badge { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: var(--fg); color: var(--surface); font-size: 0.75rem; line-height: 20px; text-align: center; font-variant-numeric: tabular-nums; }
 .filterpanel { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; padding: 12px; border-radius: 14px; border: 1.5px solid var(--line); background: var(--surface); }
@@ -263,19 +276,39 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px s
 @media (prefers-reduced-motion: reduce) { .card, .progress i { transition: none; } }
 </style>
 
+<!-- Flaggorna till länkarna längst ner, samma som på startsidan (start.html). -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="flag-lb" viewBox="0 0 90 60">
+    <rect width="90" height="60" fill="#ED1C24"/>
+    <rect y="15" width="90" height="30" fill="#fff"/>
+    <path fill="#00A651" d="M45 17l7 9h-4l8 8h-6l9 8H31l9-8h-6l8-8h-4z"/>
+    <rect x="43.5" y="41" width="3" height="4" fill="#00A651"/>
+  </symbol>
+  <symbol id="flag-iq" viewBox="0 0 90 60">
+    <rect width="90" height="60" fill="#fff"/>
+    <rect width="90" height="20" fill="#CE1126"/>
+    <rect y="40" width="90" height="20" fill="#000"/>
+    <text x="45" y="34" text-anchor="middle" font-size="11" font-weight="700" fill="#007A3D" font-family="'Noto Naskh Arabic', 'Arial', serif">الله أكبر</text>
+  </symbol>
+  <symbol id="flag-al" viewBox="0 0 90 60">
+    <rect width="90" height="60" fill="#009639"/>
+    <circle cx="45" cy="30" r="15" fill="none" stroke="#fff" stroke-width="2.5" stroke-dasharray="3 1.6"/>
+    <circle cx="45" cy="30" r="9" fill="#fff"/>
+    <circle cx="48.5" cy="28" r="8" fill="#009639"/>
+  </symbol>
+</svg>
 <div class="app">
   <header>
     <div class="top">
       <h1><a id="title" href="../">Arabiska</a></h1>
       <div class="count" id="count">Kort 1 av 1</div>
     </div>
-    <nav class="pages" id="pages" aria-label="Dialekter"></nav>
     <div class="typerow">
       <button class="ghost" id="new-type">Skapa nya kort</button>
     </div>
     <div class="searchrow">
       <input type="search" class="search" id="q" placeholder="Sök ord" aria-label="Sök ord" autocomplete="off">
-      <button type="button" class="ghost" id="filter-btn" aria-expanded="false" aria-controls="filterpanel">Filter<span class="badge" id="filter-n" hidden></span></button>
+      <button type="button" class="ghost" id="filter-btn" aria-expanded="false" aria-controls="filterpanel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18l-7 8.5V19l-4 2v-7.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>Filter<span class="badge" id="filter-n" hidden></span></button>
     </div>
     <div class="filterpanel" id="filterpanel" hidden>
       <div class="filters" role="group" aria-label="Ordklass">
@@ -334,6 +367,8 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px s
   <div class="printbox">
     <button class="ghost" id="print">Skriv ut korten</button>
   </div>
+
+  <nav class="pages" id="pages" aria-label="Dialekter"></nav>
 
 </div>
 
@@ -525,11 +560,13 @@ document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("scrim"
 $("new-type").addEventListener("click", openSheet);
 
 // Länkar mellan sidorna. En dialektsida visar alla ord i sin dialekt och har inga egna val.
-const PAGES = [["alla/", "Alla", null], ["libanesiska/", "Libanesiska", "leb"], ["standardarabiska/", "Standardarabiska", "msa"]];
+const PAGES = [["alla/", "Alla", null, ["lb", "iq", "al"]], ["libanesiska/", "Libanesiska", "leb", ["lb"]], ["standardarabiska/", "Standardarabiska", "msa", ["al"]]];
+const FLAG = { lb: "Libanons flagga", iq: "Iraks flagga", al: "Arabförbundets flagga" };
+const flags = fs => fs.map(f => `<svg role="img" aria-label="${FLAG[f]}"><use href="#flag-${f}"/></svg>`).join("");
 // Öppnad direkt från disken visar webbläsaren inte index.html i en mapp av sig själv.
 const page = p => BASE + p + (location.protocol === "file:" ? "index.html" : "");
 $("title").href = page("");
-$("pages").innerHTML = PAGES.map(([p, name, k]) => `<a href="${page(p)}"${k === LOCK ? ' aria-current="page"' : ""}>${name}</a>`).join("");
+$("pages").innerHTML = PAGES.map(([p, name, k, fs]) => `<a href="${page(p)}"${k === LOCK ? ' aria-current="page"' : ""}>${fs.length > 1 ? `<span class="many">${flags(fs)}</span>` : flags(fs)}${name}</a>`).join("");
 if (LOCK) {
   $("title").textContent = DIALECT[LOCK];
   document.title = DIALECT[LOCK] + " ordkort";
