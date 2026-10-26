@@ -13,7 +13,7 @@ Avbryter du och kör igen fortsätter skriptet där det slutade.
 
 Lägg till --man för manliga röster.
 """
-import getpass, hashlib, json, os, re, sys, time, urllib.error, urllib.request
+import array, getpass, hashlib, io, json, os, re, sys, time, urllib.error, urllib.request, wave
 from functools import lru_cache
 from xml.sax.saxutils import escape
 
@@ -28,7 +28,8 @@ VOICES = {
 # transkriptionen innan texten skickas till Azure. Kortet visar samma text som förut.
 #
 # Ord som ändå blir fel kan läggas in här: Azure får versionen till höger.
-# Ett "|långsam" sist läser ordet långsammare. Ändrar du här görs bara de filerna om.
+# Ett "|långsam" sist läser ordet långsammare. Ett "|sista" sparar bara sista ordet: skriv ordet
+# två gånger, så låter det andra ofta tydligare. Ändrar du här görs bara de filerna om.
 UTTAL = {
     "leb|تعبان": "تَعْبان|långsam",   # trött: ayn hörs knappt
     "irq|تعبان": "تَعْبان|långsam",
@@ -39,6 +40,9 @@ UTTAL = {
     "leb|أخبار": "أَخْبَارْ",   # nyheter: samma sak
     "irq|أخبار": "أَخْبَارْ",
     "msa|أَلْمانِيا": "أَلْمَانِيَا|långsam",   # Tyskland: rösten svalde l och ā
+    "msa|جِدًّا": "جِدَّنْ",   # väldigt: med ًّا blev det jiddana
+    "msa|غَلَط": "غَلَطْ، غَلَطْ|sista",   # fel: ensamt hördes inte ṭ
+    "leb|غلط": "غَلَطْ، غَلَطْ|sista",
 }
 PAUSE = 3.2  # sekunder mellan anrop, för gratisnivåns gräns på 20 anrop i minuten
 
@@ -199,8 +203,39 @@ def final_sukun(text):
     return " / ".join(FINAL_CONS.sub(r"\1" + SUKUN, p.strip()) for p in text.split("/"))
 
 
-def synth(key, region, lang, voice, text):
-    text, slow = (text[:-len("|långsam")], True) if text.endswith("|långsam") else (text, False)
+def flags(text):
+    """Texten och valen efter | (långsam, sista)."""
+    text, *f = text.split("|")
+    return text, set(f)
+
+
+def last_word(wav):
+    """Behåller bara det sista som sägs: allt efter sista pausen i ljudet (wav, 16 bitar mono).
+    Tystnaden efter ordet kortas till 100 ms. Gränsen för tyst är låg, annars klipps
+    sista konsonantens släpp bort (ṭ i ghalaṭ kommer svagt, en bit efter vokalen)."""
+    with wave.open(io.BytesIO(wav)) as w:
+        params, pcm = w.getparams(), array.array("h", w.readframes(w.getnframes()))
+    step = params.framerate // 100  # 10 ms
+    loud = [max(map(abs, pcm[i:i + step]), default=0) for i in range(0, len(pcm), step)]
+    limit = max(loud) * 0.01
+    # Sista tystnaden på minst 150 ms före slutet av talet.
+    end = max(i for i, v in enumerate(loud) if v > limit)
+    start, quiet = 0, 0
+    for i in range(end, -1, -1):
+        quiet = quiet + 1 if loud[i] <= limit else 0
+        if quiet >= 15:
+            start = i + quiet - 12  # 120 ms före ordet, så att svaga början som gh kommer med
+            break
+    out = io.BytesIO()
+    with wave.open(out, "wb") as w:
+        w.setparams(params)
+        w.writeframes(pcm[start * step:(end + 10) * step].tobytes())
+    return out.getvalue()
+
+
+def synth(key, region, lang, voice, text, wav=False):
+    text, f = flags(text)
+    slow = "långsam" in f
     # "m. / f."-former läses som två ord med en kort paus emellan.
     spoken = " ، ".join(p.strip() for p in text.split("/"))
     ssml = (f'<speak version="1.0" xml:lang="{lang}"><voice name="{voice}">'
@@ -211,7 +246,7 @@ def synth(key, region, lang, voice, text):
         headers={
             "Ocp-Apim-Subscription-Key": key,
             "Content-Type": "application/ssml+xml",
-            "X-Microsoft-OutputFormat": "audio-24khz-48kbitrate-mono-mp3",
+            "X-Microsoft-OutputFormat": "riff-24khz-16bit-mono-pcm" if wav else "audio-24khz-48kbitrate-mono-mp3",
             "User-Agent": "arabiska-ordkort",
         })
     for attempt in range(6):
@@ -269,10 +304,13 @@ def main():
     for n, k in enumerate(left, 1):
         d, ar, _ = todo[k]
         lang, voice = VOICES[male][d]
-        name = f"{d}/{hashlib.sha1(ar.encode('utf-8')).hexdigest()[:12]}.mp3"
+        # Bara sista ordet: klipps ur wav, eftersom det inte finns något här som kan klippa mp3.
+        last = "sista" in flags(say(k))[1]
+        name = f"{d}/{hashlib.sha1(ar.encode('utf-8')).hexdigest()[:12]}.{'wav' if last else 'mp3'}"
         os.makedirs(os.path.join(OUT, d), exist_ok=True)
+        audio = synth(key, region, lang, voice, say(k), wav=last)
         with open(os.path.join(OUT, name), "wb") as f:
-            f.write(synth(key, region, lang, voice, say(k)))
+            f.write(last_word(audio) if last else audio)
         index[k] = name
         spoken[k] = say(k)
         json.dump(spoken, open(spoken_path, "w", encoding="utf-8"), ensure_ascii=False)
