@@ -91,6 +91,16 @@ select, input[type="text"] {
 .search { grid-column: 1 / -1; width: 100%; min-width: 0; font: 500 0.9rem var(--font-ui); padding: 9px 12px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); color: var(--fg); }
 .search:focus { outline: none; border-color: var(--fg); }
 .theme-pick { width: 100%; min-width: 0; font-weight: 500; font-size: 0.9rem; padding: 9px 12px; }
+/* Kapitel: en meny där flera kapitel kan väljas. Ser ut som rullistan bredvid. */
+.multi { position: relative; min-width: 0; }
+.multi-btn { height: 100%; display: flex; align-items: center; gap: 6px; font-family: var(--font-ui); text-align: start; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); color: var(--fg); cursor: pointer; }
+.multi-btn span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.multi-btn::after { content: ""; flex: none; width: 7px; height: 7px; border: solid currentColor; border-width: 0 1.5px 1.5px 0; transform: translateY(-2px) rotate(45deg); margin-inline: 2px 4px; }
+.multi-list { position: absolute; z-index: 20; top: calc(100% + 4px); left: 0; min-width: 100%; max-height: 60vh; overflow: auto; padding: 6px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); box-shadow: 0 8px 24px rgba(0, 0, 0, .15); }
+.multi-list label { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; font-size: 0.9rem; white-space: nowrap; cursor: pointer; }
+.multi-list label:hover { background: var(--bg); }
+.multi-list input { width: 18px; height: 18px; margin: 0; accent-color: var(--fg); }
+.multi-list .clear { display: block; width: 100%; margin-top: 4px; padding: 8px 10px; border: 0; border-top: 1px solid var(--line); background: none; color: var(--muted); font: 600 0.85rem var(--font-ui); text-align: start; cursor: pointer; }
 
 .progress { height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; }
 .progress i { display: block; height: 100%; width: 0; background: var(--fg); transition: width .3s; }
@@ -270,7 +280,10 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px s
       <button id="f-other" data-f="other" aria-pressed="false">Fraser</button>
     </div>
     <div class="picks">
-      <select class="theme-pick" id="chapter" aria-label="Kapitel"><option value="">Alla kapitel</option></select>
+      <div class="multi">
+        <button type="button" class="theme-pick multi-btn" id="chapter" aria-haspopup="true" aria-expanded="false" aria-controls="chapter-list">Alla kapitel</button>
+        <div class="multi-list" id="chapter-list" role="group" aria-label="Kapitel" hidden></div>
+      </div>
       <select class="theme-pick" id="theme" aria-label="Tema"><option value="">Alla teman</option></select>
       <input type="search" class="search" id="q" placeholder="Sök på svenska, arabiska eller transkription" aria-label="Sök ord" autocomplete="off">
     </div>
@@ -420,10 +433,19 @@ const summary = t => { const cs = typeChapters(t); return `${dialects(t).map(k =
 function renderTypes() {
   const t = active(), cs = typeChapters(t);
   // Kapitelmenyn visar bara kapitel som är valda.
-  const avail = cs.length ? cs : CHAPTERS, csel = $("chapter");
-  if (!avail.includes(chapter)) chapter = "";
-  csel.length = 1; avail.forEach(c => csel.add(new Option(c, c)));
-  csel.value = chapter;
+  const avail = cs.length ? cs : CHAPTERS;
+  chapters = chapters.filter(c => avail.includes(c));
+  $("chapter-list").innerHTML = avail.map(c => `<label><input type="checkbox" value="${esc(c)}"${chapters.includes(c) ? " checked" : ""}>${esc(c)}</label>`).join("")
+    + `<button type="button" class="clear">Alla kapitel</button>`;
+  chapterLabel();
+}
+// Knappen visar valda kapitel kort: "Standard 1, 2" eller "Alla kapitel".
+const shortChapter = c => c.replace(" lektion", "").replace(" kap.", " kap");
+function chapterLabel() {
+  const names = chapters.map(shortChapter);
+  const same = names.length > 1 && names.every(n => n.replace(/\d+$/, "") === names[0].replace(/\d+$/, ""));
+  const text = !names.length ? "Alla kapitel" : same ? names[0] + ", " + names.slice(1).map(n => n.match(/\d+$/)[0]).join(", ") : names.join(", ");
+  $("chapter").innerHTML = `<span>${esc(text)}</span>`;
 }
 
 function sheetChoice() {
@@ -508,7 +530,7 @@ if (LOCK) {
 }
 
 // --- Övning ---
-let filter = "all", theme = "", chapter = "", query = "", deck = [], i = 0;
+let filter = "all", theme = "", chapters = [], query = "", deck = [], i = 0;
 
 function shuffle(a) { a = a.slice(); for (let k = a.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); [a[k], a[j]] = [a[j], a[k]]; } return a; }
 // Orden som valet av dialekter och kapitel ger, utan filtren ovanför korten.
@@ -525,7 +547,7 @@ function matches(w, q) {
 }
 function pool() {
   const q = fold(query.trim());
-  return poolFor(active()).filter(w => (filter === "all" || w.pos === filter) && (!theme || w.t === theme) && (!chapter || inChapters(w, [chapter])) && (!q || matches(w, q)));
+  return poolFor(active()).filter(w => (filter === "all" || w.pos === filter) && (!theme || w.t === theme) && (!chapters.length || inChapters(w, chapters)) && (!q || matches(w, q)));
 }
 
 function start(words) {
@@ -762,7 +784,23 @@ document.querySelectorAll(".filters button").forEach(b => b.addEventListener("cl
 }));
 [...new Set(WORDS.map(w => w.t))].sort((a, b) => a.localeCompare(b, "sv")).forEach(t => $("theme").add(new Option(t, t)));
 $("theme").addEventListener("change", e => { theme = e.target.value; start(pool()); });
-$("chapter").addEventListener("change", e => { chapter = e.target.value; start(pool()); });
+function chapterMenu(open) {
+  $("chapter-list").hidden = !open;
+  $("chapter").setAttribute("aria-expanded", open);
+}
+$("chapter").addEventListener("click", () => chapterMenu($("chapter-list").hidden));
+$("chapter-list").addEventListener("change", () => {
+  chapters = [...$("chapter-list").querySelectorAll("input:checked")].map(x => x.value);
+  chapterLabel(); start(pool());
+});
+$("chapter-list").addEventListener("click", e => {
+  if (!e.target.closest(".clear")) return;
+  $("chapter-list").querySelectorAll("input").forEach(x => x.checked = false);
+  chapters = []; chapterLabel(); chapterMenu(false); start(pool());
+});
+// Menyn stängs vid klick utanför eller Escape.
+document.addEventListener("click", e => { if (!e.target.closest(".multi")) chapterMenu(false); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("chapter-list").hidden) { chapterMenu(false); $("chapter").focus(); } });
 $("q").addEventListener("input", e => { query = e.target.value; start(pool()); });
 
 renderTypes();
