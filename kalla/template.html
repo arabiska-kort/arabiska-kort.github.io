@@ -356,14 +356,14 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px s
 // leb/irq/msa: { f: [[arabiska, translitteration], (plural)], n: anmärkning, s: kapitel }. Utan s = ordet finns inte i boken för den dialekten och är ifyllt i efterhand.
 // Libanesisk translitteration är bokens (9 = ʿ, H = ḥ, ʃ = š, x = ḫ, G = ġ, versaler = emfatiska, dubbla vokaler = långa).
 const WORDS = __WORDS__;
-// Dialektsidorna (libanesiska/, irakiska/, standardarabiska/) byggs med en låst dialekt och ligger en mapp ner.
+// Dialektsidorna (libanesiska/, standardarabiska/) byggs med en låst dialekt och ligger en mapp ner.
 const LOCK = __LOCK__, BASE = LOCK ? "../" : "";
 
 const POS = { noun: "Substantiv", prep: "Preposition", verb: "Verb", adj: "Adjektiv", pron: "Pronomen", q: "Frågeord", other: "Fras" };
 const DIALECT = { leb: "Libanesiska", irq: "Irakiska", msa: "Standardarabiska" };
 const ORDER_D = ["leb", "irq", "msa"];
-// Kapitel: Standard lektion 1, 2 … först, sedan libanesiska kapitel.
-const CHAPTERS = [...new Set(WORDS.flatMap(w => ORDER_D.map(k => w[k] && w[k].s).filter(Boolean)))]
+// Kapitel: Standard lektion 1, 2 … först, sedan libanesiska kapitel. En dialektsida visar bara sina egna.
+const CHAPTERS = [...new Set(WORDS.flatMap(w => (LOCK ? [LOCK] : ORDER_D).map(k => w[k] && w[k].s).filter(Boolean)))]
   .sort((a, b) => a.localeCompare(b, "sv", { numeric: true }) * (a[0] === b[0] ? 1 : -1));
 const typeChapters = t => (t.chapters || []).filter(c => CHAPTERS.includes(c));
 const inChapters = (w, cs) => ORDER_D.some(k => w[k] && cs.includes(w[k].s));
@@ -494,7 +494,7 @@ document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("scrim"
 $("new-type").addEventListener("click", openSheet);
 
 // Länkar mellan sidorna. En dialektsida visar alla ord i sin dialekt och har inga egna val.
-const PAGES = [["", "Alla", null], ["libanesiska/", "Libanesiska", "leb"], ["irakiska/", "Irakiska", "irq"], ["standardarabiska/", "Standardarabiska", "msa"]];
+const PAGES = [["", "Alla", null], ["libanesiska/", "Libanesiska", "leb"], ["standardarabiska/", "Standardarabiska", "msa"]];
 // Öppnad direkt från disken visar webbläsaren inte index.html i en mapp av sig själv.
 const page = p => BASE + p + (location.protocol === "file:" ? "index.html" : "");
 $("pages").innerHTML = PAGES.map(([p, name, k]) => `<a href="${page(p)}"${k === LOCK ? ' aria-current="page"' : ""}>${name}</a>`).join("");
