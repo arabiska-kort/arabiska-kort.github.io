@@ -46,6 +46,7 @@ UTTAL = {
     "msa|شَيْء": "شَيْءْ",   # sak: lät som shayn
     "msa|وَرَق": "وَرَقْ",   # papper
     "msa|جِدار": "جِدارْ",   # vägg: lät som jidāron
+    "msa|أُذُن": "أُذُنْ",   # öra: lät som udhunen
     "msa|أَلْمانِيا": "أَلْمَانِيَا|långsam",   # Tyskland: rösten svalde l och ā
     "msa|جِدًّا": "جِدَّنْ",   # väldigt: med ًّا blev det jiddana
     "msa|وَسِخ": "وَسِخْ|mening",   # smutsig: ensamt lät det wasikho
