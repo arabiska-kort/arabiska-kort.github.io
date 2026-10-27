@@ -52,11 +52,16 @@ body {
 
 header { display: flex; flex-direction: column; gap: 10px; }
 .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-h1 { font-family: var(--font-display); font-weight: 800; font-size: 1.6rem; margin: 0; letter-spacing: -0.01em; }
+.top .count { flex: none; white-space: nowrap; }
+h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(1.05rem, 5vw, 1.6rem); min-width: 0; margin: 0; letter-spacing: -0.01em; }
 h1 span { font-family: var(--font-ar); font-weight: 700; color: var(--muted); font-size: 1.15rem; margin-inline-start: 6px; }
 .score, .count { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--muted); white-space: nowrap; }
 .count { font-size: 0.95rem; }
-h1 a { color: inherit; text-decoration: none; }
+h1 a { color: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 10px; }
+h1 .tflags { display: inline-flex; gap: 3px; }
+h1 .tflags svg { display: block; width: 30px; height: 20px; border-radius: 3px; box-shadow: 0 0 0 1px var(--line); }
+h1 .tflags.many svg { width: 18px; height: 12px; border-radius: 2px; }
+@media (max-width: 360px) { h1 a { gap: 7px; } h1 .tflags svg { width: 24px; height: 16px; } h1 .tflags.many svg { width: 15px; height: 10px; } .top .count { font-size: 0.85rem; } }
 .pages { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 12px; font-size: 0.85rem; padding-top: 4px; }
 .pages a { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); text-decoration: none; }
 .pages a[aria-current] { color: var(--fg); font-weight: 700; }
@@ -583,8 +588,10 @@ const flags = fs => fs.map(f => `<svg role="img" aria-label="${FLAG[f]}"><use hr
 const page = p => BASE + p + (location.protocol === "file:" ? "index.html" : "");
 $("title").href = page("");
 $("pages").innerHTML = PAGES.map(([p, name, k, fs]) => `<a href="${page(p)}"${k === LOCK ? ' aria-current="page"' : ""}>${fs.length > 1 ? `<span class="many">${flags(fs)}</span>` : flags(fs)}${name}</a>`).join("");
+// Rubriken får samma flagga som sidan har i länkarna längst ner.
+{ const fs = PAGES.find(x => x[2] === LOCK)[3];
+  $("title").innerHTML = `<span class="tflags${fs.length > 1 ? " many" : ""}">${flags(fs)}</span>${LOCK ? DIALECT[LOCK] : "Arabiska"}`; }
 if (LOCK) {
-  $("title").textContent = DIALECT[LOCK];
   document.title = DIALECT[LOCK] + " ordkort";
   $("new-type").closest(".typerow").hidden = true;
 }
