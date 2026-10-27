@@ -51,6 +51,7 @@ UTTAL = {
     "msa|طُرُق": "طُرُقْ",   # vägar: lät som ṭuruqu
     "msa|لُبْنان": "لُبْنانْ",   # Libanon: lät som lubnānu
     "msa|جُدُد": "جُدُدْ",   # nya: lät som jududi
+    "msa|عُظَماء": "عُظَماءْ",   # storslagna: lät som ʿuẓamā't
     "msa|لا بَأْس": "لا بَأْس|ipa=laː baʔs",   # inte illa: lät som lā ba'stso, med sukun lā ba'sts
     "msa|أَلْمانِيا": "أَلْمَانِيَا|långsam",   # Tyskland: rösten svalde l och ā
     "msa|جِدًّا": "جِدَّنْ",   # väldigt: med ًّا blev det jiddana
