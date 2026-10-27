@@ -49,6 +49,7 @@ UTTAL = {
     "msa|أَوْراق": "أَوْراقْ",   # papper (plural): lät som awrāqu
     "msa|تَمام": "تَمامْ",   # bra, okej: lät som tamāmu
     "msa|مُعَلِّم": "مُعَلِّمْ",   # lärare: lät som muʿallimun
+    "msa|مُعَلِّمون": "مُعَلِّمونْ",   # lärare (plural): lät som muʿallimūna
     "msa|جِدار": "جِدارْ",   # vägg: lät som jidāron
     "msa|أُذُن": "أُذُنْ",   # öra: lät som udhunen
     "msa|طُرُق": "طُرُقْ",   # vägar: lät som ṭuruqu
