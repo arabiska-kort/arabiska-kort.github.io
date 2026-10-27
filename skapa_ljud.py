@@ -29,7 +29,9 @@ VOICES = {
 #
 # Ord som ändå blir fel kan läggas in här: Azure får versionen till höger.
 # Ett "|långsam" sist läser ordet långsammare. Ett "|sista" sparar bara sista ordet: skriv ordet
-# två gånger, så låter det andra ofta tydligare. Ändrar du här görs bara de filerna om.
+# två gånger, så låter det andra ofta tydligare. Ett "|mening" sparar också bara sista ordet, men för
+# en kort mening där orden hänger ihop (ensamt fick وَسِخ ett o på slutet, sist i en mening inte).
+# Ändrar du här görs bara de filerna om.
 UTTAL = {
     "leb|تعبان": "تَعْبان|långsam",   # trött: ayn hörs knappt
     "irq|تعبان": "تَعْبان|långsam",
@@ -46,6 +48,7 @@ UTTAL = {
     "leb|مطبخ": "مَطْبَخْ",   # kök
     "msa|أَلْمانِيا": "أَلْمَانِيَا|långsam",   # Tyskland: rösten svalde l och ā
     "msa|جِدًّا": "جِدَّنْ",   # väldigt: med ًّا blev det jiddana
+    "msa|وَسِخ": "اَلْبَيْتُ وَسِخْ|mening",   # smutsig: ensamt lät det wasikho
     "msa|غَلَط": "غَلَطْ، غَلَطْ|sista",   # fel: ensamt hördes inte ṭ
     "leb|غلط": "غَلَطْ، غَلَطْ|sista",
     "msa|أُمّ": "أُومّ",   # mor: lät som emm
@@ -208,7 +211,7 @@ def keep_final_vowel(ar):
 
 
 def flags(text):
-    """Texten och valen efter | (långsam, sista)."""
+    """Texten och valen efter | (långsam, sista, mening)."""
     text, *f = text.split("|")
     return text, set(f)
 
@@ -229,6 +232,29 @@ def last_word(wav):
         quiet = quiet + 1 if loud[i] <= limit else 0
         if quiet >= 15:
             start = i + quiet - 12  # 120 ms före ordet, så att svaga början som gh kommer med
+            break
+    out = io.BytesIO()
+    with wave.open(out, "wb") as w:
+        w.setparams(params)
+        w.writeframes(pcm[start * step:(end + 10) * step].tobytes())
+    return out.getvalue()
+
+
+def after_gap(wav):
+    """Behåller sista ordet i en mening där orden hänger ihop: klipper i sista korta glappet
+    (minst 30 ms under 5 %) före ordets sista starka ljud. last_word hittar inget glapp där."""
+    with wave.open(io.BytesIO(wav)) as w:
+        params, pcm = w.getparams(), array.array("h", w.readframes(w.getnframes()))
+    step = params.framerate // 100  # 10 ms
+    loud = [max(map(abs, pcm[i:i + step]), default=0) for i in range(0, len(pcm), step)]
+    top = max(loud)
+    end = max(i for i, v in enumerate(loud) if v > top * 0.01)
+    strong = max(i for i, v in enumerate(loud) if v > top * 0.2)
+    start, quiet = 0, 0
+    for i in range(strong, 0, -1):
+        quiet = quiet + 1 if loud[i] <= top * 0.05 else 0
+        if quiet >= 3 and loud[i - 1] > top * 0.05:
+            start = i  # början av glappet, så att ordets svaga början kommer med
             break
     out = io.BytesIO()
     with wave.open(out, "wb") as w:
@@ -322,12 +348,13 @@ def main():
         d, ar, _ = todo[k]
         lang, voice = VOICES[male][d]
         # Bara sista ordet: klipps ur wav, eftersom det inte finns något här som kan klippa mp3.
-        last = "sista" in flags(say(k))[1]
+        opts = flags(say(k))[1]
+        last = "sista" in opts or "mening" in opts
         name = f"{d}/{hashlib.sha1(ar.encode('utf-8')).hexdigest()[:12]}.{'wav' if last else 'mp3'}"
         os.makedirs(os.path.join(OUT, d), exist_ok=True)
         audio = synth(key, region, lang, voice, say(k), wav=last)
         with open(os.path.join(OUT, name), "wb") as f:
-            f.write(last_word(audio) if last else audio)
+            f.write(after_gap(audio) if "mening" in opts else last_word(audio) if last else audio)
         index[k] = name
         spoken[k] = say(k)
         json.dump(spoken, open(spoken_path, "w", encoding="utf-8"), ensure_ascii=False)
