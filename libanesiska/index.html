@@ -103,8 +103,8 @@ select, input[type="text"] {
 /* Sök och Filter på en rad. Ordklass, kapitel och tema ligger i en panel som Filter öppnar. */
 .searchrow { display: flex; gap: 8px; }
 .searchrow .search { flex: 1; }
-#filter-btn { display: flex; align-items: center; gap: 6px; }
-#filter-btn svg { width: 17px; height: 17px; flex: none; }
+#filter-btn, #front-btn { display: flex; align-items: center; gap: 6px; }
+#filter-btn svg, #front-btn svg { width: 17px; height: 17px; flex: none; }
 #filter-btn[aria-expanded="true"] { border-color: var(--fg); }
 .badge { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: var(--fg); color: var(--surface); font-size: 0.75rem; line-height: 20px; text-align: center; font-variant-numeric: tabular-nums; }
 .filterpanel { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; padding: 12px; border-radius: 14px; border: 1.5px solid var(--line); background: var(--surface); }
@@ -307,6 +307,7 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px s
     <div class="searchrow">
       <input type="search" class="search" id="q" placeholder="Sök ord" aria-label="Sök ord" autocomplete="off">
       <button type="button" class="ghost" id="filter-btn" aria-expanded="false" aria-controls="filterpanel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18l-7 8.5V19l-4 2v-7.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>Filter<span class="badge" id="filter-n" hidden></span></button>
+      <button type="button" class="ghost" id="front-btn" title="Byt språk på framsidan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h15m-4-4 4 4-4 4M20 16H5m4-4-4 4 4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span id="front-name">Svenska</span></button>
     </div>
     <div class="filterpanel" id="filterpanel" hidden>
       <div class="filters" role="group" aria-label="Ordklass">
@@ -461,6 +462,8 @@ if (!cur) {
 // En tidigare version saknade "Bokens" och sparade DIN i stället. Återställ till bokens en gång.
 // Kapitel valdes tidigare i Skapa nya kort. Nu görs det bara i filtret, så ett gammalt val tas bort.
 cur.chapters = [];
+// På en dialektsida minns sidan själv vilket språk framsidan har, så valet på Alla inte skrivs över.
+if (LOCK) cur.front = load("arabiska-fram-" + LOCK, "sv");
 if (!cur.trv) { for (const k in (cur.translit || {})) if (cur.translit[k] === "din") cur.translit[k] = "book"; cur.trv = 2; save("arabiska-val", cur); }
 const active = () => cur;
 // Arabiska på framsidan: första valda dialekt som har ordet.
@@ -548,12 +551,29 @@ $("sheet").addEventListener("submit", e => {
   const t = sheetChoice();
   if (!t.dialect.length) return;
   cur = t; save("arabiska-val", cur);
-  closeSheet(); renderTypes(); start(pool());
+  closeSheet(); renderTypes(); frontLabel(); start(pool());
 });
 $("cancel").addEventListener("click", closeSheet);
 $("scrim").addEventListener("click", e => { if (e.target === $("scrim")) closeSheet(); });
 document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("scrim").hidden) closeSheet(); });
 $("new-type").addEventListener("click", openSheet);
+
+// Knappen bredvid Filter byter framsidan mellan svenska och arabiska utan att blanda om korten.
+function frontLabel() {
+  const ar = frontAr(cur);
+  $("front-name").textContent = ar ? "Arabiska" : "Svenska";
+  $("front-btn").setAttribute("aria-label", `Framsida: ${ar ? "arabiska" : "svenska"}. Byt till ${ar ? "svenska" : "arabiska"}`);
+}
+$("front-btn").addEventListener("click", () => {
+  const before = dialects(cur).join();
+  cur.front = frontAr(cur) ? "sv" : "ar";
+  // Med arabiska framsida i Skapa nya kort valdes bara en dialekt. Tillbaka på svenska gäller de dialekter som var ikryssade.
+  if (cur.front === "sv" && cur.svDialect && cur.svDialect.length) cur.dialect = cur.svDialect;
+  if (LOCK) save("arabiska-fram-" + LOCK, cur.front); else save("arabiska-val", cur);
+  frontLabel();
+  if (dialects(cur).join() !== before || $("play").hidden) start(pool()); else show();
+});
+frontLabel();
 
 // Länkar mellan sidorna. En dialektsida visar alla ord i sin dialekt och har inga egna val.
 const PAGES = [["libanesiska/", "Libanesiska", "leb", ["lb"]], ["standardarabiska/", "Standardarabiska", "msa", ["al"]], ["alla/", "Alla", null, ["lb", "iq", "al"]]];
