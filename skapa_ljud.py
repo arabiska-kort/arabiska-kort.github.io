@@ -31,6 +31,7 @@ VOICES = {
 # Ett "|långsam" sist läser ordet långsammare. Ett "|sista" sparar bara sista ordet: skriv ordet
 # två gånger, så låter det andra ofta tydligare. Ett "|mening" läser ordet sist i en kort mening,
 # "al-baytu ...", och sparar bara ordet (ensamt fick وَسِخ ett o på slutet, sist i en mening inte).
+# Ett "|ipa=..." ger rösten uttalet i ljudskrift (IPA) i stället för att den gissar från texten.
 # Ändrar du här görs bara de filerna om.
 UTTAL = {
     "leb|تعبان": "تَعْبان|långsam",   # trött: ayn hörs knappt
@@ -49,6 +50,7 @@ UTTAL = {
     "msa|أُذُن": "أُذُنْ",   # öra: lät som udhunen
     "msa|طُرُق": "طُرُقْ",   # vägar: lät som ṭuruqu
     "msa|لُبْنان": "لُبْنانْ",   # Libanon: lät som lubnānu
+    "msa|لا بَأْس": "لا بَأْس|ipa=laː baʔs",   # inte illa: lät som lā ba'stso, med sukun lā ba'sts
     "msa|أَلْمانِيا": "أَلْمَانِيَا|långsam",   # Tyskland: rösten svalde l och ā
     "msa|جِدًّا": "جِدَّنْ",   # väldigt: med ًّا blev det jiddana
     "msa|وَسِخ": "وَسِخْ|mening",   # smutsig: ensamt lät det wasikho
@@ -224,7 +226,7 @@ def keep_final_vowel(ar):
 
 
 def flags(text):
-    """Texten och valen efter | (långsam, sista, mening)."""
+    """Texten och valen efter | (långsam, sista, mening, ipa=...)."""
     text, *f = text.split("|")
     return text, set(f)
 
@@ -297,9 +299,12 @@ def synth(key, region, lang, voice, text, wav=False):
     text, f = flags(text)
     slow = "långsam" in f
     # "m. / f."-former läses som två ord med en kort paus emellan.
-    spoken = " ، ".join(p.strip() for p in text.split("/"))
+    spoken = escape(" ، ".join(p.strip() for p in text.split("/")))
+    ipa = next((x[4:] for x in f if x.startswith("ipa=")), None)
+    if ipa:
+        spoken = f'<phoneme alphabet="ipa" ph="{escape(ipa)}">{spoken}</phoneme>'
     ssml = (f'<speak version="1.0" xml:lang="{lang}"><voice name="{voice}">'
-            f'<prosody rate="{"-35%" if slow else "-10%"}">{escape(spoken)}</prosody></voice></speak>')
+            f'<prosody rate="{"-35%" if slow else "-10%"}">{spoken}</prosody></voice></speak>')
     req = urllib.request.Request(
         f"https://{region}.tts.speech.microsoft.com/cognitiveservices/v1",
         data=ssml.encode("utf-8"),
