@@ -50,6 +50,8 @@ UTTAL = {
     "msa|تَمام": "تَمامْ",   # bra, okej: lät som tamāmu
     "msa|مُعَلِّم": "مُعَلِّمْ",   # lärare: lät som muʿallimun
     "msa|مُعَلِّمون": "مُعَلِّمونْ",   # lärare (plural): lät som muʿallimūna
+    "msa|يَسار": "يَسارْ",   # vänster: lät som yasāra
+    "msa|إِلى اليَسار": "إِلى اليَسارْ",
     "msa|جِدار": "جِدارْ",   # vägg: lät som jidāron
     "msa|أُذُن": "أُذُنْ",   # öra: lät som udhunen
     "msa|طُرُق": "طُرُقْ",   # vägar: lät som ṭuruqu
