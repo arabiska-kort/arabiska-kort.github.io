@@ -297,7 +297,10 @@ def after_carrier(wav):
     for i in range(onset, end):
         quiet = quiet + 1 if loud[i] <= top * 0.05 else 0
         if quiet >= 3:
-            start = i - 2  # början av glappet, så att ordets svaga början kommer med
+            # Ordet börjar där ljudet åter går över 5 %. 30 ms före det, annars hörs slutet
+            # av al-baytu som ett "to" före ordet (to-maṭbakh).
+            word = next(j for j in range(i, end) if loud[j] > top * 0.05)
+            start = max(word - 3, 0)
             break
     out = io.BytesIO()
     with wave.open(out, "wb") as w:
