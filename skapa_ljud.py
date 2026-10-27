@@ -57,6 +57,7 @@ UTTAL = {
     "msa|مَطْبَخ": "مَطْبَخْ|mening",   # kök: samma o efter kh
     "msa|مَطابِخ": "مَطابِخْ|mening",
     "msa|أَخ": "أَخْ|mening",   # bror
+    "msa|جُدُد": "جُدُدْ|mening",   # nya: lät som jududi
     "leb|وسخ": "وِسِخْ|mening",   # smutsig
     "leb|مطبخ": "مَطْبَخْ|mening",   # kök
     "leb|مطابخ": "مَطَابِخْ|mening",
