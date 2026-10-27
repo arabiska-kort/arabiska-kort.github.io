@@ -71,6 +71,7 @@ UTTAL = {
     "msa|إِلى اللِّقاء": "إِلى اللِّقا",   # på återseende: t på slutet även med sukun, så utan hamza
     "msa|أَهالٍ": "أَهالِينْ",   # familjer: -in hördes inte, bara ahāl
     "msa|أَراضٍ": "أَراضِينْ",   # jord, mark: samma sak
+    "msa|مُدُن": "مُدُونْ",   # städer: lät som mudunun, med sukun mudut
     "msa|لا بَأْس": "لا بَأْس|ipa=laː baʔs",   # inte illa: lät som lā ba'stso, med sukun lā ba'sts
     "msa|المَجَر": "المَجَر|ipa=ʔalmad͡ʒar",   # Ungern: lät som al-majara, även med sukun
     "msa|أَلْمانِيا": "أَلْمَانِيَا|långsam",   # Tyskland: rösten svalde l och ā
