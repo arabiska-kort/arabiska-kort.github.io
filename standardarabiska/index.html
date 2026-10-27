@@ -857,9 +857,10 @@ function speak(btn) {
 $("restart").addEventListener("click", () => start(pool()));
 $("prev").addEventListener("click", () => step(-1));
 $("next").addEventListener("click", () => step(1));
+// Ett klick till på vald ordklass tar bort filtret och visar alla igen.
 document.querySelectorAll(".filters button").forEach(b => b.addEventListener("click", () => {
-  filter = b.dataset.f;
-  document.querySelectorAll(".filters button").forEach(x => x.setAttribute("aria-pressed", x === b));
+  filter = filter === b.dataset.f ? "all" : b.dataset.f;
+  document.querySelectorAll(".filters button").forEach(x => x.setAttribute("aria-pressed", x.dataset.f === filter));
   start(pool());
 }));
 // Teman väljs som kapitlen: flera kan kryssas i.
