@@ -45,13 +45,19 @@ UTTAL = {
     "irq|أخبار": "أَخْبَارْ",
     "msa|شَيْء": "شَيْءْ",   # sak: lät som shayn
     "msa|وَرَق": "وَرَقْ",   # papper
-    "leb|مطبخ": "مَطْبَخْ",   # kök
     "msa|أَلْمانِيا": "أَلْمَانِيَا|långsam",   # Tyskland: rösten svalde l och ā
     "msa|جِدًّا": "جِدَّنْ",   # väldigt: med ًّا blev det jiddana
     "msa|وَسِخ": "وَسِخْ|mening",   # smutsig: ensamt lät det wasikho
     "msa|مَطْبَخ": "مَطْبَخْ|mening",   # kök: samma o efter kh
     "msa|مَطابِخ": "مَطابِخْ|mening",
     "msa|أَخ": "أَخْ|mening",   # bror
+    "leb|وسخ": "وِسِخْ|mening",   # smutsig
+    "leb|مطبخ": "مَطْبَخْ|mening",   # kök
+    "leb|مطابخ": "مَطَابِخْ|mening",
+    "irq|وصخ": "وُصِخْ|mening",   # smutsig
+    "irq|مطبخ": "مَطْبَخْ|mening",   # kök
+    "irq|مطابخ": "مَطَابُخْ|mening",
+    "irq|مرّة لخ": "مَرّة لُخْ|mening",   # en gång till
     "msa|غَلَط": "غَلَطْ، غَلَطْ|sista",   # fel: ensamt hördes inte ṭ
     "leb|غلط": "غَلَطْ، غَلَطْ|sista",
     "msa|أُمّ": "أُومّ",   # mor: lät som emm
