@@ -111,6 +111,8 @@ select, input[type="text"] {
 #filter-btn, #front-btn { display: flex; align-items: center; gap: 6px; }
 #filter-btn svg, #front-btn svg { width: 17px; height: 17px; flex: none; }
 #filter-btn[aria-expanded="true"] { border-color: var(--fg); }
+/* På mobilen visar knapparna bara ikonen, så att sökrutan får plats. */
+@media (max-width: 520px) { .searchrow .lbl { display: none; } #filter-btn, #front-btn { padding-inline: 14px; } }
 .badge { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: var(--fg); color: var(--surface); font-size: 0.75rem; line-height: 20px; text-align: center; font-variant-numeric: tabular-nums; }
 .filterpanel { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; padding: 12px; border-radius: 14px; border: 1.5px solid var(--line); background: var(--surface); }
 .filterpanel .picks { width: 100%; }
@@ -311,8 +313,8 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px s
     </div>
     <div class="searchrow">
       <input type="search" class="search" id="q" placeholder="Sök ord" aria-label="Sök ord" autocomplete="off">
-      <button type="button" class="ghost" id="front-btn" title="Byt språk på framsidan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h15m-4-4 4 4-4 4M20 16H5m4-4-4 4 4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span id="front-name">Svenska</span></button>
-      <button type="button" class="ghost" id="filter-btn" aria-expanded="false" aria-controls="filterpanel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18l-7 8.5V19l-4 2v-7.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>Filter<span class="badge" id="filter-n" hidden></span></button>
+      <button type="button" class="ghost" id="front-btn" title="Byt språk på framsidan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h15m-4-4 4 4-4 4M20 16H5m4-4-4 4 4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="lbl" id="front-name">Svenska</span></button>
+      <button type="button" class="ghost" id="filter-btn" aria-label="Filter" aria-expanded="false" aria-controls="filterpanel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18l-7 8.5V19l-4 2v-7.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><span class="lbl">Filter</span><span class="badge" id="filter-n" hidden></span></button>
     </div>
     <div class="filterpanel" id="filterpanel" hidden>
       <div class="filters" role="group" aria-label="Ordklass">
