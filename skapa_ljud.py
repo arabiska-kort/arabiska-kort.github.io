@@ -50,6 +50,7 @@ UTTAL = {
     "msa|أُذُن": "أُذُنْ",   # öra: lät som udhunen
     "msa|طُرُق": "طُرُقْ",   # vägar: lät som ṭuruqu
     "msa|لُبْنان": "لُبْنانْ",   # Libanon: lät som lubnānu
+    "msa|جُدُد": "جُدُدْ",   # nya: lät som jududi
     "msa|لا بَأْس": "لا بَأْس|ipa=laː baʔs",   # inte illa: lät som lā ba'stso, med sukun lā ba'sts
     "msa|أَلْمانِيا": "أَلْمَانِيَا|långsam",   # Tyskland: rösten svalde l och ā
     "msa|جِدًّا": "جِدَّنْ",   # väldigt: med ًّا blev det jiddana
@@ -57,7 +58,6 @@ UTTAL = {
     "msa|مَطْبَخ": "مَطْبَخْ|mening",   # kök: samma o efter kh
     "msa|مَطابِخ": "مَطابِخْ|mening",
     "msa|أَخ": "أَخْ|mening",   # bror
-    "msa|جُدُد": "جُدُدْ|mening",   # nya: lät som jududi
     "leb|وسخ": "وِسِخْ|mening",   # smutsig
     "leb|مطبخ": "مَطْبَخْ|mening",   # kök
     "leb|مطابخ": "مَطَابِخْ|mening",
