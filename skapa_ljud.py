@@ -62,6 +62,7 @@ UTTAL = {
     "msa|سَماء": "سَماءْ",
     "msa|غَداء": "غَداءْ",
     "irq|أشياء": "أَشْيَاءْ",
+    "msa|إِلى اللِّقاء": "إِلى اللِّقا",   # på återseende: t på slutet även med sukun, så utan hamza
     "msa|لا بَأْس": "لا بَأْس|ipa=laː baʔs",   # inte illa: lät som lā ba'stso, med sukun lā ba'sts
     "msa|أَلْمانِيا": "أَلْمَانِيَا|långsam",   # Tyskland: rösten svalde l och ā
     "msa|جِدًّا": "جِدَّنْ",   # väldigt: med ًّا blev det jiddana
