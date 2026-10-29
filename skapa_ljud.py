@@ -99,6 +99,7 @@ UTTAL = {
     "msa|شُهور": "شُهورْ",   # månader: lät som shuhūrun
     "msa|أَشْجار": "أَشْجارْ",   # träd: lät som ashjārun
     "msa|مُرَبّى": "مُرَبّى|ipa=murabbaː",   # marmelad: lät som murabb
+    "msa|السّودان": "السّودانْ",   # Sudan: lät som as-sūdānu
     "msa|وَالله": "وَاللّٰهِي",   # vid Gud: utan vokal blev det wallāh, kortet säger wa-llāhi
 }
 PAUSE = 3.2  # sekunder mellan anrop, för gratisnivåns gräns på 20 anrop i minuten
