@@ -105,6 +105,7 @@ UTTAL = {
     "msa|أَخْبار": "أَخْبار|ipa=ʔaxbaːr",   # nyheter: lät som akhbāru
     "msa|بَلَد": "بَلَدْ",   # land: lät som baladin
     "msa|بُلْدان": "بُلْدانْ",   # länder: lät som buldānun
+    "msa|قَلَم": "قَلَمْ",   # penna: utan sukun fick m en vokal efter sig
     "msa|وَالله": "وَاللّٰهِي",   # vid Gud: utan vokal blev det wallāh, kortet säger wa-llāhi
 }
 PAUSE = 3.2  # sekunder mellan anrop, för gratisnivåns gräns på 20 anrop i minuten
