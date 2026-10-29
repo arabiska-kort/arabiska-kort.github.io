@@ -82,6 +82,7 @@ UTTAL = {
     "msa|أَخ": "أَخْ|mening",   # bror
     "msa|كِبار": "كِبارْ|mening",   # stora: lät som kibārun
     "msa|شَهْر": "شَهْرْ|mening",   # månad: lät som shahrun
+    "msa|طالِب": "طالِبْ|mening",   # student: ensamt lät b som t
     "leb|وسخ": "وِسِخْ|mening",   # smutsig
     "leb|مطبخ": "مَطْبَخْ|mening",   # kök
     "leb|مطابخ": "مَطَابِخْ|mening",
