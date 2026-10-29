@@ -81,6 +81,7 @@ UTTAL = {
     "msa|مَطابِخ": "مَطابِخْ|mening",
     "msa|أَخ": "أَخْ|mening",   # bror
     "msa|كِبار": "كِبارْ|mening",   # stora: lät som kibārun
+    "msa|شَهْر": "شَهْرْ|mening",   # månad: lät som shahrun
     "leb|وسخ": "وِسِخْ|mening",   # smutsig
     "leb|مطبخ": "مَطْبَخْ|mening",   # kök
     "leb|مطابخ": "مَطَابِخْ|mening",
@@ -95,6 +96,7 @@ UTTAL = {
     "msa|كُرّاسة": "كُرّاسَهْ",   # skrivhäfte: med ة hördes inte -a
     "msa|في": "فِيي",   # i: lät som bara f
     "leb|في": "فِيي",   # det finns: samma sak
+    "msa|شُهور": "شُهورْ",   # månader: lät som shuhūrun
     "msa|وَالله": "وَاللّٰهِي",   # vid Gud: utan vokal blev det wallāh, kortet säger wa-llāhi
 }
 PAUSE = 3.2  # sekunder mellan anrop, för gratisnivåns gräns på 20 anrop i minuten
