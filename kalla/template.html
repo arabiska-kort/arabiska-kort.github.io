@@ -432,7 +432,13 @@ const CHAPTERS = [...new Set(WORDS.flatMap(w => (LOCK ? [LOCK] : ORDER_D).map(k 
 const typeChapters = t => (t.chapters || []).filter(c => CHAPTERS.includes(c));
 const inChapters = (w, cs) => ORDER_D.some(k => w[k] && cs.includes(w[k].s));
 // Verb med tre former: dåtid han (grundformen), dåtid jag, nutid jag. Med två former: dåtid han, nutid han.
-const verbLabel = (n, k) => (n === 3 ? ["Dåtid (han)", "Dåtid (jag)", "Nutid (jag)"] : ["Dåtid (han)", "Nutid (han)"])[k];
+// Med svensk böjning (w.b = [dåtid, nutid]) syns vem som gör det: "Dåtid (jag köpte)".
+const verbLabel = (w, n, k) => {
+  const [past, now] = w.b || [];
+  const lab = n === 3 ? [["Dåtid", "han", past], ["Dåtid", "jag", past], ["Nutid", "jag", now]] : [["Dåtid", "han", past], ["Nutid", "han", now]];
+  const [tid, vem, sv] = lab[k];
+  return `${tid} (${vem}${sv ? " " + esc(sv) : ""})`;
+};
 // Äldre korttyper sparade dialekten som "leb", "msa" eller "both".
 const dialects = t => { const d = t.dialect; const a = Array.isArray(d) ? d : d === "both" ? ["leb", "msa"] : [d]; return ORDER_D.filter(k => a.includes(k)); };
 const dialectName = ds => ds.length === 3 ? "Alla tre dialekterna" : ds.map(k => DIALECT[k]).join(" + ");
@@ -653,7 +659,7 @@ function block(w, key, role, sys = trOf(active(), key)) {
   const two = d.f.length > 1;
   const rows = d.f.map(([ar, tr], k) => {
     const t = sys !== "none" && tr ? `<span class="tr">${trHtml(translit(tr, key, sys))}</span>` : "";
-    const lab = two ? `<span class="k">${w.pos === "verb" ? verbLabel(d.f.length, k) : (k ? "Plural" : "Singular")}</span>` : "";
+    const lab = two ? `<span class="k">${w.pos === "verb" ? verbLabel(w, d.f.length, k) : (k ? "Plural" : "Singular")}</span>` : "";
     return `<div class="frow"><div class="l">${lab}${t}</div><div class="r"><span class="ar" lang="ar">${esc(ar)}</span><button type="button" class="say" data-say="${esc(ar)}" data-dialect="${key}" aria-label="Lyssna">${SPEAKER}</button></div></div>`;
   }).join("") + (d.n ? `<div class="note">${esc(d.n)}</div>` : "");
   return `<div class="dialect ${role}">${label}${rows}</div>`;
@@ -772,7 +778,7 @@ function printDoc(words, t) {
   const trs = (tr, key) => trOf(t, key) !== "none" && tr ? `<span class="tr">${trHtml(translit(tr, key, trOf(t, key)))}</span>` : "";
   const blk = (w, key) => {
     const d = w[key]; if (!d) return "";
-    const rows = d.f.map(([ar, tr], k) => `<div class="row"><div class="l">${d.f.length > 1 ? `<span class="k">${w.pos === "verb" ? verbLabel(d.f.length, k) : (k ? "Plural" : "Singular")}</span>` : ""}${trs(tr, key)}</div><span class="ar">${esc(ar)}</span></div>`).join("");
+    const rows = d.f.map(([ar, tr], k) => `<div class="row"><div class="l">${d.f.length > 1 ? `<span class="k">${w.pos === "verb" ? verbLabel(w, d.f.length, k) : (k ? "Plural" : "Singular")}</span>` : ""}${trs(tr, key)}</div><span class="ar">${esc(ar)}</span></div>`).join("");
     return `<div class="d"><div class="dl"><span>${DIALECT[key]}</span>${d.s ? `<em>${esc(d.s)}</em>` : ""}</div>${rows}${d.n ? `<div class="note">${esc(d.n)}</div>` : ""}</div>`;
   };
   const front = w => {
