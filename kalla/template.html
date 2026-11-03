@@ -182,7 +182,7 @@ select, input[type="text"] {
 .frow:last-child { border-bottom: 0; }
 .frow .l { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .frow .k { font-weight: 700; font-size: 0.85rem; }
-.vem { font-weight: 400; }
+.vem { color: var(--c); }
 .frow .tr { font-style: italic; color: var(--muted); font-size: 0.85rem; overflow-wrap: anywhere; }
 .ayn { font-style: normal; font-weight: 500; font-size: 0.8em; line-height: 0; vertical-align: 0.4em; display: inline-block; margin: 0 0.06em; }
 .ayn.hz { transform: scaleX(-1); }
@@ -433,7 +433,7 @@ const CHAPTERS = [...new Set(WORDS.flatMap(w => (LOCK ? [LOCK] : ORDER_D).map(k 
 const typeChapters = t => (t.chapters || []).filter(c => CHAPTERS.includes(c));
 const inChapters = (w, cs) => ORDER_D.some(k => w[k] && cs.includes(w[k].s));
 // Verb med tre former: dåtid han (grundformen), dåtid jag, nutid jag. Med två former: dåtid han, nutid han.
-// Med svensk böjning (w.b = [dåtid, nutid]): "Dåtid (jag köpte)", med jag/han i vanlig vikt.
+// Med svensk böjning (w.b = [dåtid, nutid]): "Dåtid (jag köpte)", med jag/han i verbfärgen.
 const verbLabel = (w, n, k) => {
   const [past, now] = w.b || [];
   const lab = n === 3 ? [["Dåtid", "han", past], ["Dåtid", "jag", past], ["Nutid", "jag", now]] : [["Dåtid", "han", past], ["Nutid", "han", now]];
@@ -744,7 +744,7 @@ body { font-family: Figtree, system-ui, sans-serif; color: #17202B; -webkit-prin
 .row:last-child { border-bottom: 0; }
 .l { display: flex; flex-direction: column; min-width: 21mm; flex-shrink: 1; }
 .k { font-weight: 700; font-size: 2.5mm; }
-.vem { font-weight: 400; }
+.vem { color: var(--c); }
 .tr { font-style: italic; color: #5B6676; font-size: 2.8mm; overflow-wrap: anywhere; }
 .ar { flex-shrink: 0; font-family: "Noto Naskh Arabic", serif; font-weight: 700; direction: rtl; white-space: nowrap; line-height: 1.35; font-size: 5.4mm; }
 .vg { display: grid; grid-template-columns: 10mm 1fr 1fr; column-gap: 1.5mm; align-items: center; }

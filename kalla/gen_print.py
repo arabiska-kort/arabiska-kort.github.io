@@ -40,7 +40,7 @@ body {{ font-family: UI, UIX, 'DejaVu Sans', sans-serif; color: #17202B; }}
 .row:last-child {{ border-bottom: 0; }}
 .l {{ display: flex; flex-direction: column; min-width: 21mm; flex-shrink: 1; }}
 .k {{ font-weight: 700; font-size: 2.5mm; }}
-.vem {{ font-weight: 400; }}
+.vem {{ color: var(--c); }}
 .tr {{ font-style: italic; color: #5B6676; font-size: 2.8mm; overflow-wrap: anywhere; }}
 .ar {{ flex-shrink: 0; font-family: AR, 'FreeSerif', serif; font-weight: 700; direction: rtl; white-space: nowrap; line-height: 1.35; }}
 .leb .ar, .msa .ar {{ font-size: 5.4mm; }}
