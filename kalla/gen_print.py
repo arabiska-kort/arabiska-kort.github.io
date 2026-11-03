@@ -40,7 +40,7 @@ body {{ font-family: UI, UIX, 'DejaVu Sans', sans-serif; color: #17202B; }}
 .row:last-child {{ border-bottom: 0; }}
 .l {{ display: flex; flex-direction: column; min-width: 21mm; flex-shrink: 1; }}
 .k {{ font-weight: 700; font-size: 2.5mm; }}
-.vem {{ color: var(--c); }}
+.vem {{ font-style: italic; padding-right: 0.1em; }}
 .tr {{ font-style: italic; color: #5B6676; font-size: 2.8mm; overflow-wrap: anywhere; }}
 .ar {{ flex-shrink: 0; font-family: AR, 'FreeSerif', serif; font-weight: 700; direction: rtl; white-space: nowrap; line-height: 1.35; }}
 .leb .ar, .msa .ar {{ font-size: 5.4mm; }}
@@ -64,7 +64,7 @@ const esc = t => String(t).replace(/[&<>]/g, c => ({{"&":"&amp;","<":"&lt;",">":
 const cards = WORDS.slice().sort((a, b) => ORDER[a.pos] - ORDER[b.pos] || a.t.localeCompare(b.t, "sv") || a.sv.localeCompare(b.sv, "sv"));
 function block(w, key, name) {{
   const d = w[key];
-  const rows = d.f.map(([ar, tr], k) => `<div class="row"><div class="l">${{d.f.length > 1 ? `<span class="k">${{w.pos === "verb" ? (d.f.length === 3 ? ["Dåtid", "Dåtid", "Nutid"] : ["Dåtid", "Nutid"])[k] + ' <span class="vem">' + (d.f.length === 3 && k ? "jag" : "han") + "</span>" + (w.b ? " " + w.b[k && (d.f.length === 3 ? k - 1 : k)] : "") : (k ? "Plural" : "Singular")}}</span>` : ""}}${{SYS !== "none" && tr ? `<span class="tr">${{esc(translit(tr, key, SYS)).replace(/[ʿʾ]/g, m => m === "ʿ" ? `<span class="ayn" title="ayn">c</span>` : `<span class="ayn hz" title="hamza">c</span>`)}}</span>` : ""}}</div><span class="ar">${{esc(ar)}}</span></div>`).join("");
+  const rows = d.f.map(([ar, tr], k) => `<div class="row"><div class="l">${{d.f.length > 1 ? `<span class="k">${{w.pos === "verb" ? (d.f.length === 3 ? ["Dåtid", "Dåtid", "Nutid"] : ["Dåtid", "Nutid"])[k] + ' (<span class="vem">' + (d.f.length === 3 && k ? "jag" : "han") + "</span>" + (w.b ? " " + w.b[k && (d.f.length === 3 ? k - 1 : k)] : "") + ")" : (k ? "Plural" : "Singular")}}</span>` : ""}}${{SYS !== "none" && tr ? `<span class="tr">${{esc(translit(tr, key, SYS)).replace(/[ʿʾ]/g, m => m === "ʿ" ? `<span class="ayn" title="ayn">c</span>` : `<span class="ayn hz" title="hamza">c</span>`)}}</span>` : ""}}</div><span class="ar">${{esc(ar)}}</span></div>`).join("");
   return `<div class="${{key}}"><div class="dl"><span>${{name}}</span>${{d.s ? `<em>${{esc(d.s)}}</em>` : ""}}</div>${{rows}}${{d.n ? `<div class="note">${{esc(d.n)}}</div>` : ""}}</div>`;
 }}
 const front = w => `<div class="card ${{w.pos}}"><div class="top"><span class="pos">${{POS[w.pos]}}</span><span class="side">Framsida</span></div><div class="sv">${{esc(w.sv)}}</div><div class="sub">${{esc(w.t)}}</div></div>`;
