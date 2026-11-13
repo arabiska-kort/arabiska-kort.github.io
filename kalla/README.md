@@ -6,7 +6,7 @@ Här ligger allt som appen och utskriften byggs från.
 |---|---|
 | `start.html` | Startsidan med de tre knapparna för att välja dialekt. |
 | `template.html` | Appen: utseende och all kod. Orden stoppas in där det står `__WORDS__`. |
-| `data/ord.json` | Alla 370 ord med libanesiska, irakiska och standardarabiska. Här ändrar du ord. |
+| `data/ord.json` | Alla 524 ord. De flesta har libanesiska, irakiska och standardarabiska; orden från libanesiska kapitel 10 och 11 har bara libanesiska. Här ändrar du ord. |
 | `bygg.py` | Bygger startsidan `../index.html`, appen i `../alla/` och dialektsidorna `../libanesiska/` och `../standardarabiska/`, och kopierar orden till `../ord.json`. |
 | `gen_print.py`, `pdf.js` | Gör utskrifts-PDF:en. |
 | `fonts/` | Typsnitten som bakas in i utskriften. |
