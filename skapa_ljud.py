@@ -112,6 +112,7 @@ UTTAL = {
     "leb|بمرق": "بِمْرُؤْ",   # jag går förbi: med q lät det bimru't
     "leb|دار": "دارْ",   # vardagsrum: lät som daari
     "leb|مغسلة": "مَغْسَلِه",   # handfat: med ة hördes inte -e
+    "leb|وين هالغيبة": "وَيْن هالْغَيْبِه",   # var har du varit: med ة hördes inte -e
     "msa|وَالله": "وَاللّٰهِي",   # vid Gud: utan vokal blev det wallāh, kortet säger wa-llāhi
 }
 PAUSE = 3.2  # sekunder mellan anrop, för gratisnivåns gräns på 20 anrop i minuten
