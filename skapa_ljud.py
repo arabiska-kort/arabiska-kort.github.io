@@ -114,6 +114,7 @@ UTTAL = {
     "leb|مغسلة": "مَغْسَلِه",   # handfat: med ة hördes inte -e
     "leb|وين هالغيبة": "وَيْن هالْغَيْبِه",   # var har du varit: med ة hördes inte -e
     "leb|خيّاط": "خِيّاطْ",   # skräddare: lät som xiyyaaTot
+    "leb|بارك": "بارك|ipa=beːrak",   # gratulerade: utan vokaltecken gissade rösten fel
     "msa|وَالله": "وَاللّٰهِي",   # vid Gud: utan vokal blev det wallāh, kortet säger wa-llāhi
 }
 PAUSE = 3.2  # sekunder mellan anrop, för gratisnivåns gräns på 20 anrop i minuten
