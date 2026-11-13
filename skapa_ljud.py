@@ -109,6 +109,7 @@ UTTAL = {
     "msa|قَلَم": "قَلَمْ",   # penna: utan sukun fick m en vokal efter sig
     "leb|ولد": "وَلَدْ",   # barn: lät som walad med kasusändelse
     "leb|حجر": "حَجَرْ",   # sten: lät som Hajar med kasusändelse
+    "leb|بمرق": "بِمْرُؤْ",   # jag går förbi: med q lät det bimru't
     "msa|وَالله": "وَاللّٰهِي",   # vid Gud: utan vokal blev det wallāh, kortet säger wa-llāhi
 }
 PAUSE = 3.2  # sekunder mellan anrop, för gratisnivåns gräns på 20 anrop i minuten
