@@ -179,6 +179,7 @@ UTTAL = {
     "leb|هالسنة": "هَسِّنِه",   # i år: med l lät det hal-esna, skrivet som det uttalas
     "leb|شركة": "شِرْكِه",   # företag: med ة lät det ʃirka
     "leb|شرك": "شِرَكْ",   # företag (pl.): lät med o på slutet
+    "leb|كيفك؟": "كِيفَك؟ كِيفِك؟",   # hur mår du: båda formerna, kiifak (till en man) och kiifik (till en kvinna)
     "msa|وَالله": "وَاللّٰهِي",   # vid Gud: utan vokal blev det wallāh, kortet säger wa-llāhi
 }
 PAUSE = 3.2  # sekunder mellan anrop, för gratisnivåns gräns på 20 anrop i minuten
@@ -433,10 +434,17 @@ def synth(key, region, lang, voice, text, wav=False):
     text, f = flags(text)
     slow = "långsam" in f
     # "m. / f."-former läses som två ord med en kort paus emellan.
-    spoken = escape(" ، ".join(p.strip() for p in text.split("/")))
+    parts = [p.strip() for p in text.split("/")]
     ipa = next((x[4:] for x in f if x.startswith("ipa=")), None)
-    if ipa:
-        spoken = f'<phoneme alphabet="ipa" ph="{escape(ipa)}">{spoken}</phoneme>'
+    # IPA kan också delas med "/", en per form: "كيفك؟ / كيفك؟|ipa=kiːfak / kiːfik".
+    ipas = [p.strip() for p in ipa.split("/")] if ipa else []
+    if len(ipas) == len(parts):
+        parts = [f'<phoneme alphabet="ipa" ph="{escape(i)}">{escape(p)}</phoneme>' for p, i in zip(parts, ipas)]
+        spoken = " ، ".join(parts)
+    else:
+        spoken = escape(" ، ".join(parts))
+        if ipa:
+            spoken = f'<phoneme alphabet="ipa" ph="{escape(ipa)}">{spoken}</phoneme>'
     ssml = (f'<speak version="1.0" xml:lang="{lang}"><voice name="{voice}">'
             f'<prosody rate="{"-35%" if slow else "-10%"}">{spoken}</prosody></voice></speak>')
     req = urllib.request.Request(
