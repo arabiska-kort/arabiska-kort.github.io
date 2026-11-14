@@ -167,7 +167,7 @@ UTTAL = {
     "leb|بوقّف": "بوَئِّف",   # bwa''if: ق ska vara stötljud, inte q
     "leb|مرق": "مَرَأ",   # mara': ق ska vara stötljud, inte q
     "leb|مرقت": "مَرَأْت",   # mara't: ق ska vara stötljud, inte q
-    "leb|قعد": "أَعَد",   # 'a9ad: ق ska vara stötljud, inte q
+    "leb|قعد": "أَعَدْ",   # 'a9ad: ق ska vara stötljud, sukun så att inget o hörs
     "leb|قعدت": "أَعَدْت",   # 'a9adt: ق ska vara stötljud, inte q
     "leb|بقعد": "بِئْعُد",   # bi'9ud: ق ska vara stötljud, inte q
     "leb|اتّفق": "اتَّفَأ",   # ttafa': ق ska vara stötljud, inte q
