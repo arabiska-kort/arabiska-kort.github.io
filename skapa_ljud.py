@@ -120,6 +120,16 @@ UTTAL = {
     "leb|ثانويّة": "سَنَوِيِّه",   # gymnasium: med ة hördes inte -e
     "leb|حيّ": "حَيْ",   # kvarter: lät med o på slutet
     "leb|سخن": "سُخْنّْ|mening",   # varm: ensamt hördes inte x, dubbelt n så att n hörs
+    "leb|يوم": "يَوْمْ",   # yawm: lät med en extra vokal på slutet
+    "leb|فرن": "فُرْنْ",   # furn: lät med en extra vokal på slutet
+    "leb|أجار": "أَجَارْ",   # ajaar: lät med en extra vokal på slutet
+    "leb|محافظ": "محافظ|ipa=muħaːfizˤ",   # muHaafiZ: lät med en extra vokal på slutet
+    "leb|بلّاط": "بُلَّاطْ",   # bullaaT: lät med en extra vokal på slutet
+    "leb|تخصّص": "تخصّصْ",   # txaSSaS: lät med en extra vokal på slutet
+    "leb|مقطوع": "مَقْطُوعْ",   # ma'Tuu9: lät med en extra vokal på slutet
+    "leb|كلّك ذوق": "كِلِّك ذَوْقْ",   # killik zaw': lät med en extra vokal på slutet
+    "leb|كتّاب": "كِتَّابْ",   # kittaab: lät med en extra vokal på slutet
+    "leb|صحاب": "صحَابْ",   # SHaab: lät med en extra vokal på slutet
     "msa|وَالله": "وَاللّٰهِي",   # vid Gud: utan vokal blev det wallāh, kortet säger wa-llāhi
 }
 PAUSE = 3.2  # sekunder mellan anrop, för gratisnivåns gräns på 20 anrop i minuten
