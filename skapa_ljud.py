@@ -147,6 +147,32 @@ UTTAL = {
     "leb|مش ماشي": "مِشْ ماشِي",   # miʃ meeʃi: rösten läste fel ord
     "leb|تخت": "تَخْتْ|mening",   # säng: ensamt lät det som ett annat ord
     "leb|تركت": "تَرَكْتُو|utan-slutvokal",   # jag lämnade: utan vokalen efter hördes inget t
+    "leb|سقف": "سَأْف",   # sa'f: ق ska vara stötljud, inte q
+    "leb|سقوف": "سؤُوف",   # s'uuf: ق ska vara stötljud, inte q
+    "leb|حلّاق": "حلّاأ",   # Hillee': ق ska vara stötljud, inte q
+    "leb|موسيقار": "مُوسِيأَار",   # musi'aar: ق ska vara stötljud, inte q
+    "leb|قنصل": "ؤُنْصُل",   # 'unSul: ق ska vara stötljud, inte q
+    "leb|قاضي": "أَاضِي",   # 'aaDi: ق ska vara stötljud, inte q
+    "leb|قدّم": "أَدَّم",   # 'addam: ق ska vara stötljud, inte q
+    "leb|قدّمت": "أَدَّمْت",   # 'addamt: ق ska vara stötljud, inte q
+    "leb|بقدّم": "بأَدِّم",   # b'addim: ق ska vara stötljud, inte q
+    "leb|طابق": "طَابِئ",   # Taabi': ق ska vara stötljud, inte q
+    "leb|طوابق": "طوَابِئ",   # Twaabi': ق ska vara stötljud, inte q
+    "leb|شقق": "شِئَأ",   # ʃi'a': ق ska vara stötljud, inte q
+    "leb|ورق تواليت": "وَرَأ توَاليت",   # wara' twaleet: ق ska vara stötljud, inte q
+    "leb|ملعقة": "مَلْعْأة",   # mal9'a: ق ska vara stötljud, inte q
+    "leb|ناقصو": "نَاأْصُو",   # naa'Su: ق ska vara stötljud, inte q
+    "leb|وقّف": "وَأَّف",   # wa''af: ق ska vara stötljud, inte q
+    "leb|وقّفت": "وَأَّفْت",   # wa''aft: ق ska vara stötljud, inte q
+    "leb|بوقّف": "بوَئِّف",   # bwa''if: ق ska vara stötljud, inte q
+    "leb|مرق": "مَرَأ",   # mara': ق ska vara stötljud, inte q
+    "leb|مرقت": "مَرَأْت",   # mara't: ق ska vara stötljud, inte q
+    "leb|قعد": "أَعَد",   # 'a9ad: ق ska vara stötljud, inte q
+    "leb|قعدت": "أَعَدْت",   # 'a9adt: ق ska vara stötljud, inte q
+    "leb|بقعد": "بِئْعُد",   # bi'9ud: ق ska vara stötljud, inte q
+    "leb|اتّفق": "اتَّفَأ",   # ttafa': ق ska vara stötljud, inte q
+    "leb|اتّفقت": "اتَّفَأْت",   # ttafa't: ق ska vara stötljud, inte q
+    "leb|بتّفق": "بِتِّفِئ",   # bittifi': ق ska vara stötljud, inte q
     "msa|وَالله": "وَاللّٰهِي",   # vid Gud: utan vokal blev det wallāh, kortet säger wa-llāhi
 }
 PAUSE = 3.2  # sekunder mellan anrop, för gratisnivåns gräns på 20 anrop i minuten
