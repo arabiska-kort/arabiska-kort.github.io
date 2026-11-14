@@ -180,6 +180,7 @@ UTTAL = {
     "leb|شركة": "شِرْكِه",   # företag: med ة lät det ʃirka
     "leb|شرك": "شِرَكْ",   # företag (pl.): lät med o på slutet
     "leb|كيفك؟": "كِيفَك؟ كِيفِك؟",   # hur mår du: båda formerna, kiifak (till en man) och kiifik (till en kvinna)
+    "leb|مصاريف": "مصاريف|ipa=mːsˤariːf",   # utgifter: lät som maSaariif, långt m utan vokal efter
     "msa|وَالله": "وَاللّٰهِي",   # vid Gud: utan vokal blev det wallāh, kortet säger wa-llāhi
 }
 PAUSE = 3.2  # sekunder mellan anrop, för gratisnivåns gräns på 20 anrop i minuten
