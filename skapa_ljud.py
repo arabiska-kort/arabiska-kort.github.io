@@ -117,7 +117,7 @@ UTTAL = {
     "leb|وين هالغيبة": "وَيْن هالْغَيْبِه",   # var har du varit: med ة hördes inte -e
     "leb|خيّاط": "خِيّاطْ",   # skräddare: lät som xiyyaaTot
     "leb|بارك": "بارك|ipa=beːrak",   # gratulerade: utan vokaltecken gissade rösten fel
-    "leb|مفتاح": "مفتاح|ipa=mifteːħ",   # nyckel: lät med o på slutet
+    "leb|مفتاح": "مِفْتاحْ|mening",   # nyckel: ensamt lät det med o på slutet eller som meta
     "leb|مفاتيح": "مْفاتِيحْ",   # nycklar: lät med o på slutet
     "leb|ثانويّة": "سَنَوِيِّه",   # gymnasium: med ة hördes inte -e
     "leb|حيّ": "حَيْ",   # kvarter: lät med o på slutet
