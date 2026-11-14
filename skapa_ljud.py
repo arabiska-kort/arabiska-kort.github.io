@@ -118,7 +118,7 @@ UTTAL = {
     "leb|خيّاط": "خِيّاطْ",   # skräddare: lät som xiyyaaTot
     "leb|بارك": "بارك|ipa=beːrak",   # gratulerade: utan vokaltecken gissade rösten fel
     "leb|مفتاح": "مِفْتاحْ|mening",   # nyckel: ensamt lät det med o på slutet eller som meta
-    "leb|مفاتيح": "مْفاتِيحْ",   # nycklar: lät med o på slutet
+    "leb|مفاتيح": "مِفَاتِيحْ",   # nycklar: utan vokal efter m lät det mafetii, med kort i blir det tydligt
     "leb|ثانويّة": "سَنَوِيِّه",   # gymnasium: med ة hördes inte -e
     "leb|حيّ": "حَيْ",   # kvarter: lät med o på slutet
     "leb|سخن": "سُخْنّْ|mening",   # varm: ensamt hördes inte x, dubbelt n så att n hörs
