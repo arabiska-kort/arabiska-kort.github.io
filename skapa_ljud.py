@@ -143,6 +143,7 @@ UTTAL = {
     "leb|شوك": "شُوَكْ",   # ʃuwak: rösten läste fel ord
     "leb|تهنّى": "تْهَنّى",   # thanna: rösten läste fel ord
     "leb|مش ماشي": "مِشْ ماشِي",   # miʃ meeʃi: rösten läste fel ord
+    "leb|تخت": "تَخْتْ|mening",   # säng: ensamt lät det som ett annat ord
     "msa|وَالله": "وَاللّٰهِي",   # vid Gud: utan vokal blev det wallāh, kortet säger wa-llāhi
 }
 PAUSE = 3.2  # sekunder mellan anrop, för gratisnivåns gräns på 20 anrop i minuten
