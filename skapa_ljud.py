@@ -173,6 +173,8 @@ UTTAL = {
     "leb|اتّفق": "اتَّفَأ",   # ttafa': ق ska vara stötljud, inte q
     "leb|اتّفقت": "اتَّفَأْت",   # ttafa't: ق ska vara stötljud, inte q
     "leb|بتّفق": "بِتِّفِئ",   # bittifi': ق ska vara stötljud, inte q
+    "leb|شوي": "شْوَيْ",   # lite: lät som shuway
+    "leb|بعد شوي": "بَعْد شْوَيْ",   # senare: lät som ba9d shuway
     "msa|وَالله": "وَاللّٰهِي",   # vid Gud: utan vokal blev det wallāh, kortet säger wa-llāhi
 }
 PAUSE = 3.2  # sekunder mellan anrop, för gratisnivåns gräns på 20 anrop i minuten
