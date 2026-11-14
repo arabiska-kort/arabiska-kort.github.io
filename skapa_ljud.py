@@ -130,6 +130,16 @@ UTTAL = {
     "leb|كلّك ذوق": "كِلِّك ذَوْقْ",   # killik zaw': lät med en extra vokal på slutet
     "leb|كتّاب": "كِتَّابْ",   # kittaab: lät med en extra vokal på slutet
     "leb|صحاب": "صحَابْ",   # SHaab: lät med en extra vokal på slutet
+    "leb|شوكة": "شَوْكِه",   # ʃawke: slutet (-e, -i, -a) hördes inte
+    "leb|فرشة": "فَرْشِه",   # farʃe: slutet (-e, -i, -a) hördes inte
+    "leb|مكنسة": "مِكْنْسِه",   # miknse: slutet (-e, -i, -a) hördes inte
+    "leb|فرشاية": "فرشايِه",   # firʃeeye: slutet (-e, -i, -a) hördes inte
+    "leb|حنفيّة": "حَنَفِيِّه",   # Hanafiyye: slutet (-e, -i, -a) hördes inte
+    "leb|غيبة": "غَيْبِه",   # Gaybe: slutet (-e, -i, -a) hördes inte
+    "leb|شقّة": "شِقَّه",   # ʃi''a: slutet (-e, -i, -a) hördes inte
+    "leb|مثل ما شايفة": "مثل ما شايفِه",   # mitl ma ʃeeyfe: slutet (-e, -i, -a) hördes inte
+    "leb|محامية": "مُحَامِيِّه",   # muHamiyyi: slutet (-e, -i, -a) hördes inte
+    "leb|كهربجيّة": "كِهْرَبْجِيِّه",   # kihrabjiyyi: slutet (-e, -i, -a) hördes inte
     "msa|وَالله": "وَاللّٰهِي",   # vid Gud: utan vokal blev det wallāh, kortet säger wa-llāhi
 }
 PAUSE = 3.2  # sekunder mellan anrop, för gratisnivåns gräns på 20 anrop i minuten
