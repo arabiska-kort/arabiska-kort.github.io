@@ -134,7 +134,7 @@ UTTAL = {
     "leb|صحاب": "صحَابْ",   # SHaab: lät med en extra vokal på slutet
     "leb|شوكة": "شَوْكِه",   # ʃawke: slutet (-e, -i, -a) hördes inte
     "leb|فرشة": "فَرْشِه",   # farʃe: slutet (-e, -i, -a) hördes inte
-    "leb|مكنسة": "مِكْنْسِه",   # miknse: slutet (-e, -i, -a) hördes inte
+    "leb|مكنسة": "مِكِنْسِه",   # miknse: slutet hördes inte, och utan i mellan k och n hördes inget s
     "leb|فرشاية": "فرشايِه",   # firʃeeye: slutet (-e, -i, -a) hördes inte
     "leb|حنفيّة": "حَنَفِيِّه",   # Hanafiyye: slutet (-e, -i, -a) hördes inte
     "leb|غيبة": "غَيْبِه",   # Gaybe: slutet (-e, -i, -a) hördes inte
