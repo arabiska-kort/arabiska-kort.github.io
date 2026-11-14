@@ -4,7 +4,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     function owner() {
-      return request.auth != null && request.auth.uid == "OWNER_UID";
+      return request.auth != null && request.auth.uid == "W9TExzoWHLYA8ZIgZ52rO1sAd2j1";
     }
     match /fel/{id} {
       allow create: if request.resource.data.keys().hasOnly(["sv", "dialect", "ar", "tr", "text", "audio", "page", "status", "created"])
