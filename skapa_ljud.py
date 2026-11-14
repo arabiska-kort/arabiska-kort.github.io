@@ -176,6 +176,7 @@ UTTAL = {
     "leb|شوي": "شْوَيْ",   # lite: lät som shuway
     "leb|بعد شوي": "بَعْد شْوَيْ",   # senare: lät som ba9d shuway
     "leb|نجّار": "نِجّارْ",   # snickare: lät som nijjaaron
+    "leb|هالسنة": "هَسِّنِه",   # i år: med l lät det hal-esna, skrivet som det uttalas
     "msa|وَالله": "وَاللّٰهِي",   # vid Gud: utan vokal blev det wallāh, kortet säger wa-llāhi
 }
 PAUSE = 3.2  # sekunder mellan anrop, för gratisnivåns gräns på 20 anrop i minuten
