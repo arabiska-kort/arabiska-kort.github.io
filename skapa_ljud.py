@@ -183,6 +183,7 @@ UTTAL = {
     "leb|مصاريف": "مصاريف|ipa=mːsˤariːf",   # utgifter: lät som maSaariif, långt m utan vokal efter
     "leb|بلّاطين": "بُلَّاطِينْ",   # plattsättare (pl.): lät som bullaTiini
     "leb|معلّم": "مْعَلِّمْ",   # lärare: lät som m9allimo
+    "leb|سياسيّة": "سِيَاسِيِّه",   # politiker (pl.): med ة lät det som singular
     "msa|وَالله": "وَاللّٰهِي",   # vid Gud: utan vokal blev det wallāh, kortet säger wa-llāhi
 }
 PAUSE = 3.2  # sekunder mellan anrop, för gratisnivåns gräns på 20 anrop i minuten
