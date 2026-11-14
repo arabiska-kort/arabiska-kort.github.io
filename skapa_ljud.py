@@ -119,6 +119,7 @@ UTTAL = {
     "leb|مفاتيح": "مْفاتِيحْ",   # nycklar: lät med o på slutet
     "leb|ثانويّة": "سَنَوِيِّه",   # gymnasium: med ة hördes inte -e
     "leb|حيّ": "حَيْ",   # kvarter: lät med o på slutet
+    "leb|سخن": "سُخْنّْ|mening",   # varm: ensamt hördes inte x, dubbelt n så att n hörs
     "msa|وَالله": "وَاللّٰهِي",   # vid Gud: utan vokal blev det wallāh, kortet säger wa-llāhi
 }
 PAUSE = 3.2  # sekunder mellan anrop, för gratisnivåns gräns på 20 anrop i minuten
