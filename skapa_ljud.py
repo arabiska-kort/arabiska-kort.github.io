@@ -32,6 +32,8 @@ VOICES = {
 # två gånger, så låter det andra ofta tydligare. Ett "|mening" läser ordet sist i en kort mening,
 # "al-baytu ...", och sparar bara ordet (ensamt fick وَسِخ ett o på slutet, sist i en mening inte).
 # Ett "|ipa=..." ger rösten uttalet i ljudskrift (IPA) i stället för att den gissar från texten.
+# Ett "|utan-slutvokal" klipper bort en vokal som lagts till sist, men behåller konsonanten före:
+# تَرَكْتُو läses taraktu och sparas som tarakt (utan vokalen hördes inget t).
 # Ändrar du här görs bara de filerna om.
 UTTAL = {
     "leb|تعبان": "تَعْبان|långsam",   # trött: ayn hörs knappt
@@ -144,6 +146,7 @@ UTTAL = {
     "leb|تهنّى": "تْهَنّى",   # thanna: rösten läste fel ord
     "leb|مش ماشي": "مِشْ ماشِي",   # miʃ meeʃi: rösten läste fel ord
     "leb|تخت": "تَخْتْ|mening",   # säng: ensamt lät det som ett annat ord
+    "leb|تركت": "تَرَكْتُو|utan-slutvokal",   # jag lämnade: utan vokalen efter hördes inget t
     "msa|وَالله": "وَاللّٰهِي",   # vid Gud: utan vokal blev det wallāh, kortet säger wa-llāhi
 }
 PAUSE = 3.2  # sekunder mellan anrop, för gratisnivåns gräns på 20 anrop i minuten
@@ -299,7 +302,7 @@ def keep_final_vowel(ar):
 
 
 def flags(text):
-    """Texten och valen efter | (långsam, sista, mening, ipa=...)."""
+    """Texten och valen efter | (långsam, sista, mening, utan-slutvokal, ipa=...)."""
     text, *f = text.split("|")
     return text, set(f)
 
@@ -355,6 +358,29 @@ def after_carrier(wav):
     with wave.open(out, "wb") as w:
         w.setparams(params)
         w.writeframes(pcm[start * step:(end + 10) * step].tobytes())
+    return out.getvalue()
+
+
+def cut_vowel(wav, keep=3):
+    """Klipper bort slutvokalen men behåller släppet av konsonanten före: tarakt fick inget
+    hörbart t, men rösten säger taraktu, och 30 ms efter t-smällen tonas ljudet ut."""
+    with wave.open(io.BytesIO(wav)) as w:
+        params, pcm = w.getparams(), array.array("h", w.readframes(w.getnframes()))
+    step = params.framerate // 100  # 10 ms
+    loud = [max(map(abs, pcm[i:i + step]), default=0) for i in range(0, len(pcm), step)]
+    top = max(loud)
+    # Sista tystnaden (konsonantens stängning) före slutvokalen, sedan släppet efter den.
+    end = max(i for i, v in enumerate(loud) if v > top * 0.2)
+    gap = max(i for i in range(end) if loud[i] < top * 0.05)
+    release = next(i for i in range(gap, len(loud)) if loud[i] > top * 0.05)
+    seg = pcm[:(release + keep) * step]
+    fade = 2 * step  # 20 ms uttoning
+    for j in range(fade):
+        seg[-fade + j] = int(seg[-fade + j] * (1 - j / fade))
+    out = io.BytesIO()
+    with wave.open(out, "wb") as w:
+        w.setparams(params)
+        w.writeframes(seg.tobytes())
     return out.getvalue()
 
 
@@ -447,12 +473,13 @@ def main():
         lang, voice = VOICES[male][d]
         # Bara sista ordet: klipps ur wav, eftersom det inte finns något här som kan klippa mp3.
         opts = flags(say(k))[1]
-        last = "sista" in opts or "mening" in opts
+        last = "sista" in opts or "mening" in opts or "utan-slutvokal" in opts
         name = f"{d}/{hashlib.sha1(ar.encode('utf-8')).hexdigest()[:12]}.{'wav' if last else 'mp3'}"
         os.makedirs(os.path.join(OUT, d), exist_ok=True)
         audio = synth(key, region, lang, voice, (CARRIER + " " if "mening" in opts else "") + say(k), wav=last)
         with open(os.path.join(OUT, name), "wb") as f:
-            f.write(after_carrier(audio) if "mening" in opts else last_word(audio) if last else audio)
+            f.write(after_carrier(audio) if "mening" in opts else cut_vowel(audio) if "utan-slutvokal" in opts
+                    else last_word(audio) if last else audio)
         index[k] = name
         spoken[k] = say(k)
         json.dump(spoken, open(spoken_path, "w", encoding="utf-8"), ensure_ascii=False)
