@@ -1,0 +1,24 @@
+rules_version = '2';
+// Felanmälningar från appen. Alla får skicka in en anmälan (utan konto), men bara ägaren
+// får läsa, ändra status och ta bort, inloggad med Google på arabiska-kort.github.io/fel/.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function owner() {
+      return request.auth != null && request.auth.uid == "OWNER_UID";
+    }
+    match /fel/{id} {
+      allow create: if request.resource.data.keys().hasOnly(["sv", "dialect", "ar", "tr", "text", "audio", "page", "status", "created"])
+        && request.resource.data.sv is string && request.resource.data.sv.size() <= 200
+        && request.resource.data.dialect in ["", "leb", "irq", "msa"]
+        && request.resource.data.ar is string && request.resource.data.ar.size() <= 200
+        && request.resource.data.tr is string && request.resource.data.tr.size() <= 200
+        && request.resource.data.text is string && request.resource.data.text.size() <= 500
+        && request.resource.data.audio is string && request.resource.data.audio.size() <= 250000
+        && request.resource.data.page in ["alla", "leb", "msa"]
+        && request.resource.data.status == "ny"
+        && request.resource.data.created == request.time;
+      allow read, delete: if owner();
+      allow update: if owner() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["status"]);
+    }
+  }
+}

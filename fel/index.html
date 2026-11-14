@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<title>Felanmälningar</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;800&family=Noto+Naskh+Arabic:wght@500&display=swap">
+<style>
+/* Felanmälningarna från appen. Bara ägaren kan läsa dem (Firestore-reglerna i firebase/). Samma färger som appen. */
+:root {
+  --bg: #EDF0F4; --surface: #FFFFFF; --fg: #17202B; --muted: #5B6676; --line: #D6DCE4; --accent: #1F5FD1; --bad: #C2413A; --good: #1E8A4C;
+  --font-ui: "Figtree", system-ui, -apple-system, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #0E131A; --surface: #18202B; --fg: #E9EDF2; --muted: #98A3B3; --line: #2A3442; --accent: #6FA2FF; --bad: #F07A7A; --good: #4CC27D; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --bg: #0E131A; --surface: #18202B; --fg: #E9EDF2; --muted: #98A3B3; --line: #2A3442; --accent: #6FA2FF; --bad: #F07A7A; --good: #4CC27D; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font-ui); font-size: 15px;
+  padding: 0 max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px)); }
+main { max-width: 720px; margin: 0 auto; padding-block: 28px; display: flex; flex-direction: column; gap: 14px; }
+h1 { font-weight: 800; font-size: 1.7rem; margin: 0; }
+.bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+.bar .who { color: var(--muted); font-size: 0.9rem; }
+button { font: 600 0.95rem var(--font-ui); color: var(--fg); background: var(--surface); border: 1.5px solid var(--line); border-radius: 12px; padding: 9px 14px; cursor: pointer; }
+button:hover { border-color: var(--fg); }
+button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.primary { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.msg { color: var(--muted); line-height: 1.5; margin: 0; }
+.tabs { display: flex; gap: 6px; }
+.tabs button[aria-pressed="true"] { border-color: var(--fg); }
+.item { background: var(--surface); border: 1.5px solid var(--line); border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+.item.klar { opacity: .65; }
+.head { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: baseline; }
+.head b { font-size: 1.1rem; }
+.meta { color: var(--muted); font-size: 0.85rem; }
+.form { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.ar { font-family: "Noto Naskh Arabic", serif; font-size: 1.4rem; direction: rtl; }
+.tr { font-style: italic; color: var(--muted); }
+.text { margin: 0; white-space: pre-wrap; line-height: 1.5; }
+audio { width: 100%; max-width: 360px; height: 40px; }
+.acts { display: flex; gap: 8px; flex-wrap: wrap; }
+.del { color: var(--bad); }
+.ok { color: var(--good); }
+</style>
+</head>
+<body>
+<main>
+  <div class="bar">
+    <h1>Felanmälningar</h1>
+    <div><span class="who" id="who"></span> <button id="logout" hidden>Logga ut</button></div>
+  </div>
+  <p class="msg" id="msg">Laddar …</p>
+  <button class="primary" id="login" hidden>Logga in med Google</button>
+  <div class="tabs" id="tabs" hidden>
+    <button data-s="ny" aria-pressed="true">Nya</button>
+    <button data-s="klar" aria-pressed="false">Åtgärdade</button>
+    <button data-s="" aria-pressed="false">Alla</button>
+  </div>
+  <div id="list"></div>
+</main>
+<script type="module">
+const FIREBASE = {"apiKey": "AIzaSyDMt1qs-bkt6xZ5ukvDd3hd-cWF-Mf1yu4", "authDomain": "arabiska-kort.firebaseapp.com", "projectId": "arabiska-kort", "appId": "1:808797772038:web:dcd798c19b83d4236c6687"};
+const SDK = "https://www.gstatic.com/firebasejs/11.0.2/";
+const DIALECT = { leb: "Libanesiska", irq: "Irakiska", msa: "Standardarabiska" };
+const $ = id => document.getElementById(id);
+const esc = t => String(t).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+const { initializeApp } = await import(SDK + "firebase-app.js");
+const { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } = await import(SDK + "firebase-auth.js");
+const { getFirestore, collection, query, orderBy, onSnapshot, updateDoc, deleteDoc, doc } = await import(SDK + "firebase-firestore.js");
+const app = initializeApp(FIREBASE), auth = getAuth(app), db = getFirestore(app);
+let rows = [], show = "ny", stop = null;
+
+$("login").onclick = () => signInWithPopup(auth, new GoogleAuthProvider()).catch(e => $("msg").textContent = "Inloggningen misslyckades: " + e.message);
+$("logout").onclick = () => signOut(auth);
+$("tabs").onclick = e => {
+  const b = e.target.closest("button"); if (!b) return;
+  show = b.dataset.s;
+  $("tabs").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
+  render();
+};
+
+onAuthStateChanged(auth, user => {
+  if (stop) { stop(); stop = null; }
+  $("list").innerHTML = "";
+  $("login").hidden = !!user; $("logout").hidden = !user; $("tabs").hidden = true;
+  $("who").textContent = user ? user.email : "";
+  if (!user) { $("msg").textContent = "Logga in för att se felanmälningarna."; return; }
+  $("msg").textContent = "Hämtar …";
+  stop = onSnapshot(query(collection(db, "fel"), orderBy("created", "desc")), snap => {
+    rows = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    $("tabs").hidden = false;
+    render();
+  }, err => {
+    // Ett konto som inte är ägarens får inte läsa. Visa id:t, så kan det läggas in i reglerna.
+    $("msg").textContent = `Det här kontot får inte läsa felanmälningarna (${err.code}). Konto-id: ${user.uid}`;
+  });
+});
+
+function render() {
+  const list = rows.filter(r => !show || r.status === show);
+  const nya = rows.filter(r => r.status === "ny").length;
+  $("msg").textContent = `${nya} nya, ${rows.length} totalt.` + (list.length ? "" : " Inget att visa här.");
+  $("list").innerHTML = list.map(r => {
+    const when = r.created ? r.created.toDate().toLocaleString("sv-SE", { dateStyle: "short", timeStyle: "short" }) : "";
+    return `<div class="item ${esc(r.status)}" data-id="${esc(r.id)}">
+      <div class="head"><b>${esc(r.sv)}</b><span class="meta">${esc(when)} · ${esc(r.page)}${r.dialect ? " · " + esc(DIALECT[r.dialect] || r.dialect) : ""}</span></div>
+      ${r.ar ? `<div class="form"><span class="ar" lang="ar">${esc(r.ar)}</span><span class="tr">${esc(r.tr)}</span></div>` : ""}
+      ${r.text ? `<p class="text">${esc(r.text)}</p>` : ""}
+      ${r.audio ? `<audio controls preload="none" src="${esc(r.audio)}"></audio>` : ""}
+      <div class="acts">
+        ${r.status === "ny" ? `<button class="ok" data-a="klar">Markera som åtgärdad</button>` : `<button data-a="ny">Markera som ny</button>`}
+        <button class="del" data-a="del">Ta bort</button>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+$("list").onclick = async e => {
+  const b = e.target.closest("button[data-a]"); if (!b) return;
+  const ref = doc(db, "fel", b.closest(".item").dataset.id);
+  if (b.dataset.a === "del") { if (confirm("Ta bort felanmälan?")) await deleteDoc(ref); }
+  else await updateDoc(ref, { status: b.dataset.a });
+};
+</script>
+</body>
+</html>

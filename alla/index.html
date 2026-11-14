@@ -275,6 +275,16 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px s
 .pvmeta { display: flex; justify-content: space-between; align-items: center; gap: 8px; color: var(--muted); font-size: 0.85rem; }
 .linkbtn { background: none; border: 0; padding: 4px 0; color: var(--fg); font: 600 0.85rem var(--font-ui); text-decoration: underline; cursor: pointer; }
 
+/* Felanmälan */
+.report { display: block; margin: 10px auto 0; color: var(--muted); }
+.rword { margin: -6px 0 0; color: var(--muted); }
+#rsheet select, #rsheet textarea { font: 1rem var(--font-ui); color: var(--fg); background: var(--surface); border: 1.5px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+#rsheet textarea { resize: vertical; }
+.rrec { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.rrec audio { max-width: 100%; height: 40px; }
+#r-rec.recording { color: var(--bad); border-color: var(--bad); }
+.rnote { color: var(--muted); font-size: 0.8rem; }
+
 .printbox { margin-top: 18px; display: flex; flex-direction: column; gap: 6px; }
 .printbox button { width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; }
 .printbox svg { width: 18px; height: 18px; flex-shrink: 0; }
@@ -365,6 +375,7 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px s
       <button class="prev" id="prev">Föregående</button>
       <button class="next" id="next">Nästa</button>
     </div>
+    <button type="button" class="linkbtn report" id="report-btn" hidden>Felanmäl kortet</button>
   </div>
 
   <div class="end" id="end" hidden>
@@ -414,6 +425,29 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px s
   </form>
 </div>
 
+<div class="scrim" id="rscrim" hidden>
+  <form class="sheet" id="rsheet" aria-labelledby="rsheet-title">
+    <h2 id="rsheet-title">Felanmäl kortet</h2>
+    <p class="rword" id="r-word"></p>
+    <label class="field"><span>Vad gäller det?</span><select id="r-form"></select></label>
+    <label class="field"><span>Vad är fel?</span><textarea id="r-text" rows="3" maxlength="500" placeholder="Till exempel: låter som maGsal, ska vara maGsale"></textarea></label>
+    <div class="field">
+      <span>Spela in hur det ska låta (om du vill)</span>
+      <div class="rrec">
+        <button type="button" class="ghost" id="r-rec">Spela in</button>
+        <audio id="r-play" controls hidden></audio>
+        <button type="button" class="linkbtn" id="r-clear" hidden>Ta bort inspelningen</button>
+      </div>
+      <small class="rnote" id="r-recnote">Högst 10 sekunder.</small>
+    </div>
+    <p class="trhelp">Anmälan och inspelningen sparas hos Firebase (Google). Bara den som sköter appen kan se dem.</p>
+    <div class="actions">
+      <button type="submit" class="save" id="r-send">Skicka</button>
+      <button type="button" class="ghost" id="r-cancel">Avbryt</button>
+    </div>
+  </form>
+</div>
+
 <script>
 // Ordlista från arabiska_ordlista.csv. pos: noun | prep | verb | adj | pron | q (frågeord) | other (fraser och småord). t = tema.
 // leb/irq/msa: { f: [[arabiska, translitteration], (plural)], n: anmärkning, s: kapitel }. Utan s = ordet finns inte i boken för den dialekten och är ifyllt i efterhand.
@@ -422,6 +456,8 @@ const WORDS = [{"sv": "stor", "pos": "adj", "t": "Adjektiv", "msa": {"f": [["ك�
 // Appen ligger i alla/, libanesiska/ och standardarabiska/, en mapp under startsidan och ljud/.
 // Dialektsidorna byggs med en låst dialekt.
 const LOCK = null, BASE = "../";
+// Firebase-projektet där felanmälningarna sparas (kalla/firebase-config.json). null = ingen felanmälan.
+const FIREBASE = {"apiKey": "AIzaSyDMt1qs-bkt6xZ5ukvDd3hd-cWF-Mf1yu4", "authDomain": "arabiska-kort.firebaseapp.com", "projectId": "arabiska-kort", "appId": "1:808797772038:web:dcd798c19b83d4236c6687"};
 
 const POS = { noun: "Substantiv", prep: "Preposition", verb: "Verb", adj: "Adjektiv", pron: "Pronomen", q: "Frågeord", other: "Fras" };
 const DIALECT = { leb: "Libanesiska", irq: "Irakiska", msa: "Standardarabiska" };
@@ -909,6 +945,90 @@ document.addEventListener("keydown", e => {
   for (const m in MENUS) if (!$(m + "-list").hidden) { menu(m, false); $(m).focus(); }
 });
 $("q").addEventListener("input", e => { query = e.target.value; start(pool()); });
+
+// --- Felanmälan: text och inspelning sparas i Firestore, samlingen "fel". Läses på ../fel/. ---
+const FB_SDK = "https://www.gstatic.com/firebasejs/11.0.2/";
+let recorder = null, recording = null, recTimer = null;
+$("report-btn").hidden = !FIREBASE;
+if (!window.MediaRecorder || !navigator.mediaDevices) $("r-rec").closest(".field").hidden = true;
+function openReport() {
+  const w = deck[i];
+  $("r-word").textContent = w.sv;
+  $("r-form").innerHTML = dialects(active()).filter(k => w[k]).flatMap(k => w[k].f.map(([ar, tr], n) =>
+    `<option value="${k}|${n}">${DIALECT[k]}: ${esc(tr || "")} ${esc(ar)}</option>`)).join("") + `<option value="">Hela kortet, eller något annat</option>`;
+  $("r-text").value = "";
+  clearRecording();
+  $("rscrim").hidden = false;
+  $("r-text").focus();
+}
+function closeReport() { stopRecording(); $("rscrim").hidden = true; }
+function clearRecording() {
+  recording = null;
+  $("r-play").hidden = $("r-clear").hidden = true;
+  $("r-play").removeAttribute("src");
+  $("r-recnote").textContent = "Högst 10 sekunder.";
+}
+function stopRecording() {
+  clearTimeout(recTimer);
+  if (recorder && recorder.state === "recording") recorder.stop();
+}
+async function toggleRecording() {
+  if (recorder && recorder.state === "recording") { stopRecording(); return; }
+  let stream;
+  try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
+  catch { toast("Appen fick inte använda mikrofonen."); return; }
+  const type = ["audio/webm;codecs=opus", "audio/mp4", "audio/ogg;codecs=opus"].find(t => MediaRecorder.isTypeSupported(t)) || "";
+  const chunks = [];
+  recorder = new MediaRecorder(stream, { mimeType: type, audioBitsPerSecond: 32000 });
+  recorder.ondataavailable = e => chunks.push(e.data);
+  recorder.onstop = () => {
+    stream.getTracks().forEach(t => t.stop());
+    $("r-rec").classList.remove("recording"); $("r-rec").textContent = "Spela in igen";
+    const blob = new Blob(chunks, { type: recorder.mimeType });
+    const reader = new FileReader();
+    reader.onload = () => {
+      recording = reader.result;  // data:-URL, sparas direkt i dokumentet
+      $("r-play").src = recording; $("r-play").hidden = $("r-clear").hidden = false;
+      $("r-recnote").textContent = "Lyssna och spela in igen om det inte blev bra.";
+    };
+    reader.readAsDataURL(blob);
+  };
+  recorder.start();
+  $("r-rec").classList.add("recording"); $("r-rec").textContent = "Stoppa";
+  $("r-recnote").textContent = "Spelar in …";
+  recTimer = setTimeout(stopRecording, 10000);
+}
+async function sendReport(e) {
+  e.preventDefault();
+  stopRecording();
+  const w = deck[i], [k, n] = $("r-form").value.split("|"), f = k ? w[k].f[+n] : null;
+  const text = $("r-text").value.trim();
+  if (!text && !recording) { toast("Skriv vad som är fel eller spela in hur det ska låta."); return; }
+  $("r-send").disabled = true;
+  try {
+    const { initializeApp } = await import(FB_SDK + "firebase-app.js");
+    const { getFirestore, collection, addDoc, serverTimestamp } = await import(FB_SDK + "firebase-firestore.js");
+    const db = getFirestore(initializeApp(FIREBASE));
+    await addDoc(collection(db, "fel"), {
+      sv: w.sv, dialect: k || "", ar: f ? f[0] : "", tr: f ? f[1] || "" : "", text: text.slice(0, 500),
+      audio: recording || "", page: LOCK || "alla", status: "ny", created: serverTimestamp(),
+    });
+    closeReport();
+    toast("Tack! Felanmälan är skickad.");
+  } catch (err) {
+    toast("Det gick inte att skicka. Försök igen senare.");
+    console.error(err);
+  } finally {
+    $("r-send").disabled = false;
+  }
+}
+$("report-btn").addEventListener("click", openReport);
+$("r-rec").addEventListener("click", toggleRecording);
+$("r-clear").addEventListener("click", () => { clearRecording(); $("r-rec").textContent = "Spela in"; });
+$("r-cancel").addEventListener("click", closeReport);
+$("rsheet").addEventListener("submit", sendReport);
+$("rscrim").addEventListener("click", e => { if (e.target === $("rscrim")) closeReport(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("rscrim").hidden) closeReport(); });
 
 renderTypes();
 start(pool());
