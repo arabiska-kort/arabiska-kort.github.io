@@ -282,6 +282,8 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px s
 #rsheet textarea { resize: vertical; }
 .rrec { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 .rrec audio { max-width: 100%; height: 40px; }
+#r-rec { display: flex; align-items: center; gap: 8px; }
+#r-rec svg { width: 18px; height: 18px; flex: none; }
 #r-rec.recording { color: var(--bad); border-color: var(--bad); }
 .rnote { color: var(--muted); font-size: 0.8rem; }
 
@@ -432,13 +434,13 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px s
     <label class="field"><span>Vad gäller det?</span><select id="r-form"></select></label>
     <label class="field"><span>Vad är fel?</span><textarea id="r-text" rows="3" maxlength="500" placeholder="Till exempel: låter som maGsal, ska vara maGsale"></textarea></label>
     <div class="field">
-      <span>Spela in hur det ska låta (om du vill)</span>
+      <span>Inspelning (valfritt)</span>
       <div class="rrec">
-        <button type="button" class="ghost" id="r-rec">Spela in</button>
+        <button type="button" class="ghost" id="r-rec"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span id="r-rec-lbl">Spela in</span></button>
         <audio id="r-play" controls hidden></audio>
         <button type="button" class="linkbtn" id="r-clear" hidden>Ta bort inspelningen</button>
       </div>
-      <small class="rnote" id="r-recnote">Högst 10 sekunder.</small>
+      <small class="rnote" id="r-recnote">Du kan spela in hur ordet ska låta om du vill. Högst 10 sekunder.</small>
     </div>
     <p class="trhelp">Anmälan och inspelningen sparas hos Firebase (Google). Bara den som sköter appen kan se dem.</p>
     <div class="actions">
@@ -966,7 +968,7 @@ function clearRecording() {
   recording = null;
   $("r-play").hidden = $("r-clear").hidden = true;
   $("r-play").removeAttribute("src");
-  $("r-recnote").textContent = "Högst 10 sekunder.";
+  $("r-recnote").textContent = "Du kan spela in hur ordet ska låta om du vill. Högst 10 sekunder.";
 }
 function stopRecording() {
   clearTimeout(recTimer);
@@ -983,7 +985,7 @@ async function toggleRecording() {
   recorder.ondataavailable = e => chunks.push(e.data);
   recorder.onstop = () => {
     stream.getTracks().forEach(t => t.stop());
-    $("r-rec").classList.remove("recording"); $("r-rec").textContent = "Spela in igen";
+    $("r-rec").classList.remove("recording"); $("r-rec-lbl").textContent = "Spela in igen";
     const blob = new Blob(chunks, { type: recorder.mimeType });
     const reader = new FileReader();
     reader.onload = () => {
@@ -994,7 +996,7 @@ async function toggleRecording() {
     reader.readAsDataURL(blob);
   };
   recorder.start();
-  $("r-rec").classList.add("recording"); $("r-rec").textContent = "Stoppa";
+  $("r-rec").classList.add("recording"); $("r-rec-lbl").textContent = "Stoppa";
   $("r-recnote").textContent = "Spelar in …";
   recTimer = setTimeout(stopRecording, 10000);
 }
@@ -1024,7 +1026,7 @@ async function sendReport(e) {
 }
 $("report-btn").addEventListener("click", openReport);
 $("r-rec").addEventListener("click", toggleRecording);
-$("r-clear").addEventListener("click", () => { clearRecording(); $("r-rec").textContent = "Spela in"; });
+$("r-clear").addEventListener("click", () => { clearRecording(); $("r-rec-lbl").textContent = "Spela in"; });
 $("r-cancel").addEventListener("click", closeReport);
 $("rsheet").addEventListener("submit", sendReport);
 $("rscrim").addEventListener("click", e => { if (e.target === $("rscrim")) closeReport(); });
