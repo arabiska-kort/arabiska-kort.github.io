@@ -177,6 +177,8 @@ UTTAL = {
     "leb|بعد شوي": "بَعْد شْوَيْ",   # senare: lät som ba9d shuway
     "leb|نجّار": "نِجّارْ",   # snickare: lät som nijjaaron
     "leb|هالسنة": "هَسِّنِه",   # i år: med l lät det hal-esna, skrivet som det uttalas
+    "leb|شركة": "شِرْكِه",   # företag: med ة lät det ʃirka
+    "leb|شرك": "شِرَكْ",   # företag (pl.): lät med o på slutet
     "msa|وَالله": "وَاللّٰهِي",   # vid Gud: utan vokal blev det wallāh, kortet säger wa-llāhi
 }
 PAUSE = 3.2  # sekunder mellan anrop, för gratisnivåns gräns på 20 anrop i minuten
