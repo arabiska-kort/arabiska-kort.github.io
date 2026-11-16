@@ -6,8 +6,9 @@ Här ligger allt som appen och utskriften byggs från.
 |---|---|
 | `start.html` | Startsidan med de tre knapparna för att välja dialekt. |
 | `template.html` | Appen: utseende och all kod. Orden stoppas in där det står `__WORDS__`. |
-| `data/ord.json` | Alla 594 ord. De flesta har libanesiska, irakiska och standardarabiska; orden från libanesiska kapitel 10 och 11 har bara libanesiska och orden från Standard lektion 6 bara standardarabiska. Här ändrar du ord. |
+| `data/ord.json` | Alla 595 ord. De flesta har libanesiska, irakiska och standardarabiska; orden från libanesiska kapitel 10 och 11 har bara libanesiska och orden från Standard lektion 6 bara standardarabiska. Här ändrar du ord. |
 | `bygg.py` | Bygger startsidan `../index.html`, appen i `../alla/` och dialektsidorna `../libanesiska/` och `../standardarabiska/`, och kopierar orden till `../ord.json`. |
+| `bygg_texter.py`, `texter_app.js`, `kryptera.mjs` | Bokens texter (standardarabiska) med översättning och bokens ljud, i `../texter/`. Källorna ligger privat i `../transkriptioner/` (data, ljud och `inloggning.json` med användarnamn och lösenord). Allt krypteras med lösenordet, så bara krypterade filer hamnar på GitHub. Byggs av `bygg.py` om källorna finns, och kräver Node. |
 | `fel.html`, `firebase-config.json` | Sidan `../fel/` där felanmälningarna läses (inloggning med Google), och Firebase-projektet `arabiska-kort` som korten skickar felanmälningar till. Reglerna ligger i `../firebase/`. |
 | `gen_print.py`, `pdf.js` | Gör utskrifts-PDF:en. |
 | `fonts/` | Typsnitten som bakas in i utskriften. |
