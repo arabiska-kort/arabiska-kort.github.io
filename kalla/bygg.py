@@ -35,3 +35,7 @@ if firebase != "null":
 shutil.copyfile(os.path.join(HERE, "data", "ord.json"), os.path.join(WEBB, "ord.json"))
 print("Klart: ../index.html (start), ../alla/, ../libanesiska/, ../standardarabiska/")
 
+# Bokens texter (standardarabiska) i ../texter/
+import bygg_texter
+bygg_texter.main()
+
