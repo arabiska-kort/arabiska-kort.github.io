@@ -641,7 +641,7 @@ const flags = fs => fs.map(f => `<svg role="img" aria-label="${FLAG[f]}"><use hr
 const page = p => BASE + p + (location.protocol === "file:" ? "index.html" : "");
 $("title").href = page("");
 // Bokens texter. Från libanesiska går länken direkt till de libanesiska dialogerna.
-$("texter-link").href = page("texter/") + (LOCK === "leb" ? "#leb" : "");
+$("texter-link").href = page("texter/") + (LOCK === "leb" ? "#leb" : LOCK === "msa" ? "#msa" : "");
 $("pages").innerHTML = PAGES.map(([p, name, k, fs]) => `<a href="${page(p)}"${k === LOCK ? ' aria-current="page"' : ""}>${fs.length > 1 ? `<span class="many">${flags(fs)}</span>` : flags(fs)}${name}</a>`).join("");
 // Rubriken får samma flagga som sidan har i länkarna längst ner.
 { const fs = PAGES.find(x => x[2] === LOCK)[3];
