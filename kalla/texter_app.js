@@ -85,14 +85,24 @@ function loggaUt() {
 }
 
 // --- Visning ---
-const namn = d => `kapitel${d.kapitel}_text${d.text}`;
+const leb = d => d.dialekt === "leb";
+const namn = d => `${leb(d) ? "leb_" : ""}kapitel${d.kapitel}_text${d.text}`;
+const DIALEKTER = [
+  ["msa", "Standardarabiska", "kapitel 2–6"],
+  ["leb", "Libanesiska", "Spoken Lebanese, kapitel 1, 10 och 11"],
+];
+const LEB_NYCKEL = `Bokens transkription: <code>9</code> ʿayn · <code>'</code> hamza (kort stopp i halsen, ofta där
+standardarabiskan har q) · <code>H</code> ح · <code>x</code> خ · <code>G</code> غ · <code>ʃ</code> sh ·
+<code>S D T Z</code> de "tunga" ص ض ط ظ · dubbel vokal = lång vokal · dubbel konsonant = shadda ·
+<code>*</code> före ett namn. Den arabiska skriften är tillagd och finns inte i boken.`;
 
 function visa() {
   stopp();
   const id = location.hash.slice(1);
   const i = TEXTER.findIndex(d => namn(d) === id);
   if (i < 0) visaLista(); else visaText(i);
-  window.scrollTo(0, 0);
+  const mal = i < 0 && document.getElementById("dial-" + id);
+  if (mal) mal.scrollIntoView(); else window.scrollTo(0, 0);
 }
 
 function visaLista() {
@@ -107,22 +117,34 @@ function visaLista() {
   app.append(top);
   app.append(html("header", null,
     '<p class="ar-title" lang="ar">النصوص</p><h1>Texterna i boken</h1>' +
-    "<p>Standardarabiska, kapitel 2–6. Varje text med vokaltecken, uttal, ord för ord och svenska.</p>"));
+    "<p>Texterna och dialogerna i böckerna, med uttal, ord för ord, svenska och bokens inspelningar.</p>"));
   const list = el("div", "list");
-  let kap = null;
-  for (const d of TEXTER) {
-    if (d.kapitel !== kap) { kap = d.kapitel; list.append(el("h2", null, "Kapitel " + kap)); }
-    const a = el("a", "item");
-    a.href = "#" + namn(d);
-    const v = el("div");
-    v.append(el("div", "sv-t", d.titel_sv),
-      el("div", "meta", `Text ${d.text}${d.ljud ? " · 🔊 ljud" : ""} · ${d.intro}`));
-    const ar = el("div", "ar-t", d.titel_ar);
-    ar.lang = "ar";
-    a.append(v, ar);
-    list.append(a);
+  for (const [kod, rubrik, under] of DIALEKTER) {
+    const egna = TEXTER.filter(d => (d.dialekt || "msa") === kod);
+    if (!egna.length) continue;
+    const h = el("h2", "dial", rubrik);
+    h.id = "dial-" + kod;
+    h.append(el("small", null, under));
+    list.append(h);
+    let kap = null;
+    for (const d of egna) {
+      if (d.kapitel !== kap) { kap = d.kapitel; list.append(el("h2", null, "Kapitel " + kap)); }
+      list.append(listRad(d));
+    }
   }
   app.append(list);
+}
+
+function listRad(d) {
+  const a = el("a", "item");
+  a.href = "#" + namn(d);
+  const v = el("div");
+  v.append(el("div", "sv-t", d.titel_sv),
+    el("div", "meta", `${leb(d) ? "Dialog" : "Text"} ${d.text}${d.ljud ? " · 🔊 ljud" : ""} · ${d.intro}`));
+  const ar = el("div", "ar-t", d.titel_ar);
+  ar.lang = "ar";
+  a.append(v, ar);
+  return a;
 }
 
 function stopp() {
@@ -180,7 +202,8 @@ function visaText(i) {
   const head = el("header");
   const art = el("p", "ar-title", d.titel_ar);
   art.lang = "ar";
-  head.append(art, el("h1", null, d.titel_sv), el("p", null, `Kapitel ${d.kapitel}, text ${d.text} · ${d.intro}`));
+  head.append(art, el("h1", null, d.titel_sv), el("p", null,
+    `${leb(d) ? "Libanesiska · " : ""}Kapitel ${d.kapitel}, ${leb(d) ? "dialog" : "text"} ${d.text} · ${d.intro}`));
   if (bok) {
     const box = el("div", "audio");
     const wrap = el("div");
@@ -190,7 +213,8 @@ function visaText(i) {
     wrap.append(el("label", null, "Bokens inspelning"), au);
     box.append(wrap);
     head.append(box);
-    ljudUrl(bok).then(u => { au.src = u; }).catch(() => {});
+    const om = d.ljud.omrade;
+    ljudUrl(bok).then(u => { au.src = om ? `${u}#t=${om[0]},${om[1]}` : u; }).catch(() => {});
     au.addEventListener("play", () => { if (player && player !== au) stopp(); });
   }
   app.append(head);
@@ -203,11 +227,13 @@ function visaText(i) {
   knapparDolj(controls);
 
   const dialog = el("div");
-  const fullAr = el("div", "full-ar"), fullSv = el("div", "full-sv");
-  fullAr.lang = "ar";
+  const latin = d.skrift === "latin";  // bokens text är en latinsk transkription
+  const fullAr = el("div", latin ? "full-lat" : "full-ar"), fullSv = el("div", "full-sv");
+  if (!latin) fullAr.lang = "ar";
+  const farg = v => "p" + (P[v].f != null ? P[v].f : v % 3);
   d.delar.forEach((del, k) => {
     const prose = del.vem == null;
-    const card = el("article", "turn " + (prose ? "prose" : "p" + (del.vem % 3)));
+    const card = el("article", "turn " + (prose ? "prose" : farg(del.vem)));
     const tag = el("span", "who");
     tag.append(el("span", "num", String(k + 1)), prose ? "Stycke" : P[del.vem].sv);
     card.append(tag);
@@ -231,7 +257,7 @@ function visaText(i) {
     });
     dialog.append(card);
     const pa = el("p");
-    if (!prose) pa.append(el("b", null, P[del.vem].ar + ": "));
+    if (!prose) pa.append(el("b", null, (latin ? P[del.vem].bok || P[del.vem].sv : P[del.vem].ar) + ": "));
     pa.append(del.bok);
     fullAr.append(pa);
     const ps = el("p");
@@ -258,7 +284,7 @@ function visaText(i) {
 
   const hela = el("section", "extra");
   hela.append(el("h2", null, "Hela texten"));
-  for (const [rubrik, inner] of [["Som i boken", fullAr], ["Bara svenska", fullSv], ["Uttalsnyckel", html("p", "key", UTTALSNYCKEL)]]) {
+  for (const [rubrik, inner] of [["Som i boken", fullAr], ["Bara svenska", fullSv], ["Uttalsnyckel", html("p", "key", leb(d) ? LEB_NYCKEL : UTTALSNYCKEL)]]) {
     const det = el("details");
     det.append(el("summary", null, rubrik), inner);
     hela.append(det);

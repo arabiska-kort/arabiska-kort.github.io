@@ -169,6 +169,11 @@ button.back { font: inherit; font-size: .9rem; cursor: pointer; }
 }
 .login button:disabled { opacity: .6; cursor: wait; }
 .login .fel { color: #c0392b; margin: 0; min-height: 1.2em; font-weight: 600; }
+.full-lat { font-size: 1.08rem; line-height: 1.8; }
+.full-lat p { margin: 6px 0; }
+.list h2.dial { font-size: 1.5rem; color: var(--text); margin: 32px 0 0; }
+.list h2.dial:first-child { margin-top: 8px; }
+.list h2.dial small { font-size: .85rem; color: var(--muted); font-weight: 600; margin-left: 8px; }
 """
 
 SHELL = """<!doctype html>
@@ -202,19 +207,21 @@ def main():
     privat = os.path.join(HERE, "..", "transkriptioner")
     data_dir, ljud_dir = os.path.join(privat, "data"), os.path.join(privat, "ljud")
     login_fil = os.path.join(privat, "inloggning.json")
-    if not os.path.exists(login_fil) or not glob.glob(os.path.join(data_dir, "kapitel*_text*.json")):
+    filer = glob.glob(os.path.join(data_dir, "*kapitel*_text*.json"))
+    if not os.path.exists(login_fil) or not filer:
         print("Texterna: hoppar över (ingen transkriptioner/data eller inloggning.json här)")
         return
     login = json.load(open(login_fil, encoding="utf-8"))
 
     texter = []
-    for f in glob.glob(os.path.join(data_dir, "kapitel*_text*.json")):
+    for f in filer:
         with open(f, encoding="utf-8") as fh:
             texter.append(json.load(fh))
-    texter.sort(key=lambda d: (d["kapitel"], d["text"]))
+    # Standardarabiska först, sedan libanesiska.
+    texter.sort(key=lambda d: (d.get("dialekt", "msa") == "leb", d["kapitel"], d["text"]))
 
     os.makedirs(os.path.join(OUT, "ljud"), exist_ok=True)
-    par = []  # (in, ut) för kryptera.mjs
+    par = {}  # ljudfil -> krypterad fil (samma fil kan delas av flera dialoger)
     for d in texter:
         d.pop("kalla", None)
         for de in d["delar"]:
@@ -224,10 +231,15 @@ def main():
         if bok:
             src = os.path.join(ljud_dir, os.path.basename(bok))
             ut = "ljud/" + os.path.splitext(os.path.basename(bok))[0] + ".bin"
-            par.append((src, os.path.join(OUT, ut)))
+            par[src] = os.path.join(OUT, ut)
             d["ljud"] = {"bok": ut}
+            # Spelaren för hela texten spelar bara den här dialogens del av inspelningen.
+            tider = [t for de in d["delar"] for t in de.get("tider", [])]
+            if tider:
+                d["ljud"]["omrade"] = [tider[0][0], tider[-1][1]]
         else:
             d.pop("ljud", None)
+    par = list(par.items())
 
     tmp = os.path.join(HERE, "__pycache__", "texter.json")
     os.makedirs(os.path.dirname(tmp), exist_ok=True)
