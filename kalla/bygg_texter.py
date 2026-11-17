@@ -61,13 +61,14 @@ header p { color: var(--muted); margin: 6px 0 0; }
 .audio label { font-size: .85rem; color: var(--muted); display: block; }
 .audio audio { height: 36px; max-width: 100%; }
 .controls {
-  position: sticky; top: 0; z-index: 5; background: var(--bg); padding: 14px 0; margin: 20px 0 8px;
-  border-bottom: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  position: sticky; top: 0; z-index: 5; background: var(--bg); padding: 10px 0; margin: 20px 0 8px;
+  border-bottom: 1px solid var(--line); display: flex; flex-wrap: nowrap; gap: 6px; align-items: center;
+  overflow-x: auto;
 }
-.controls span { color: var(--muted); font-size: .9rem; margin-right: 4px; }
+.controls span { color: var(--muted); font-size: .8rem; margin-right: 2px; flex: none; }
 .toggle {
-  font: inherit; font-size: .9rem; font-weight: 600; border: 1px solid var(--line); background: var(--card);
-  color: var(--text); padding: 6px 14px; border-radius: 999px; cursor: pointer;
+  font: inherit; font-size: .8rem; font-weight: 600; border: 1px solid var(--line); background: var(--card);
+  color: var(--text); padding: 4px 10px; border-radius: 999px; cursor: pointer; white-space: nowrap; flex: none;
 }
 .toggle[aria-pressed="true"] { background: var(--text); color: var(--bg); border-color: var(--text); }
 .turn {
@@ -96,7 +97,9 @@ header p { color: var(--muted); margin: 6px 0 0; }
 .lit { color: var(--muted); font-size: .95rem; }
 .lit::before { content: "ord för ord: "; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
 .sv { font-weight: 600; font-size: 1.12rem; margin-top: 4px; }
-.hide-tr .tr, .hide-lit .lit, .hide-sv .sv { display: none; }
+/* Från början syns bara huvudraden. Knapparna under Visa slår på resten. */
+.tr, .lit, .sv { display: none; }
+.show-tr .tr, .show-lit .lit, .show-sv .sv { display: block; }
 section.extra { margin-top: 48px; }
 section.extra h2 { font-size: 1.35rem; font-weight: 800; margin: 0 0 12px; }
 .tips { display: grid; gap: 12px; }
@@ -175,6 +178,14 @@ button.back { font: inherit; font-size: .9rem; cursor: pointer; }
 .arx { display: none; }
 .show-ar .arx { display: block; }
 p.arx { font-family: var(--font-ar); font-size: 1.55rem; line-height: 1.9; direction: rtl; text-align: right; color: var(--muted); margin: 0 0 2px; }
+.dialval { display: grid; gap: 14px; margin-top: 28px; }
+.dialval a {
+  display: block; text-decoration: none; color: var(--text); background: var(--card);
+  border: 1px solid var(--line); border-left: 5px solid var(--accent); border-radius: 14px; padding: 18px 20px;
+}
+.dialval a:hover { border-color: var(--accent); }
+.dialval b { display: block; font-size: 1.3rem; }
+.dialval span { color: var(--muted); font-size: .9rem; }
 .full-lat { font-size: 1.08rem; line-height: 1.8; }
 .full-lat p { margin: 6px 0; }
 .list h2.dial { font-size: 1.5rem; color: var(--text); margin: 32px 0 0; }

@@ -3,7 +3,7 @@
 // SALT sätts av bygg_texter.py.
 const ITER = 600000;
 const NYCKEL_KEY = "texter-nyckel";
-const DOLJ_KEY = "texter-dolj";
+const VISA_KEY = "texter-visa";  // det man har slagit på under Visa (från början inget)
 const app = document.getElementById("app");
 let KEY = null, TEXTER = null;
 const ljudCache = {};
@@ -87,50 +87,73 @@ function loggaUt() {
 // --- Visning ---
 const leb = d => d.dialekt === "leb";
 const namn = d => `${leb(d) ? "leb_" : ""}kapitel${d.kapitel}_text${d.text}`;
+// [kod, namn, beskrivning, ordkortens sida]
 const DIALEKTER = [
-  ["msa", "Standardarabiska", "kapitel 2–6"],
-  ["leb", "Libanesiska", "Spoken Lebanese, kapitel 1, 10 och 11"],
+  ["msa", "Standardarabiska", "Texterna i lektion 2–6", "../standardarabiska/"],
+  ["leb", "Libanesiska", "Dialogerna i Spoken Lebanese, kapitel 1, 10 och 11", "../libanesiska/"],
 ];
+const dial = d => d.dialekt || "msa";
 const LEB_NYCKEL = `Bokens transkription: <code>9</code> ʿayn · <code>'</code> hamza (kort stopp i halsen, ofta där
 standardarabiskan har q) · <code>H</code> ح · <code>x</code> خ · <code>G</code> غ · <code>ʃ</code> sh ·
 <code>S D T Z</code> de "tunga" ص ض ط ظ · dubbel vokal = lång vokal · dubbel konsonant = shadda ·
 <code>*</code> före ett namn. Den arabiska skriften är tillagd och finns inte i boken.`;
 
+// Adresser: #  = välj dialekt, #msa / #leb = dialektens lista, #kapitel2_text1 / #leb_kapitel10_text1 = en text.
 function visa() {
   stopp();
   const id = location.hash.slice(1);
   const i = TEXTER.findIndex(d => namn(d) === id);
-  if (i < 0) visaLista(); else visaText(i);
-  const mal = i < 0 && document.getElementById("dial-" + id);
-  if (mal) mal.scrollIntoView(); else window.scrollTo(0, 0);
+  if (i >= 0) visaText(i);
+  else if (DIALEKTER.some(x => x[0] === id)) visaLista(id);
+  else visaStart();
+  window.scrollTo(0, 0);
 }
 
-function visaLista() {
-  document.title = "Texterna i boken";
-  app.innerHTML = "";
+function toprad(tillbakaText, tillbakaHref) {
   const top = el("div", "toprow");
-  const back = el("a", "back", "← Ordkorten");
-  back.href = "../standardarabiska/";
+  const back = el("a", "back", tillbakaText);
+  back.href = tillbakaHref;
   const ut = el("button", "back", "Logga ut");
   ut.addEventListener("click", loggaUt);
   top.append(back, ut);
   app.append(top);
+}
+
+function visaStart() {
+  document.title = "Texterna i boken";
+  app.innerHTML = "";
+  toprad("← Ordkorten", "../");
   app.append(html("header", null,
     '<p class="ar-title" lang="ar">النصوص</p><h1>Texterna i boken</h1>' +
-    "<p>Texterna och dialogerna i böckerna, med uttal, ord för ord, svenska och bokens inspelningar.</p>"));
-  const list = el("div", "list");
+    "<p>Texter och dialoger med uttal, ord för ord, svenska och bokens inspelningar.</p>"));
+  const val = el("div", "dialval");
   for (const [kod, rubrik, under] of DIALEKTER) {
-    const egna = TEXTER.filter(d => (d.dialekt || "msa") === kod);
-    if (!egna.length) continue;
-    const h = el("h2", "dial", rubrik);
-    h.id = "dial-" + kod;
-    h.append(el("small", null, under));
-    list.append(h);
-    let kap = null;
-    for (const d of egna) {
-      if (d.kapitel !== kap) { kap = d.kapitel; list.append(el("h2", null, "Kapitel " + kap)); }
-      list.append(listRad(d));
-    }
+    const n = TEXTER.filter(d => dial(d) === kod).length;
+    if (!n) continue;
+    const a = el("a");
+    a.href = "#" + kod;
+    a.append(el("b", null, rubrik), el("span", null, `${under} · ${n} ${kod === "leb" ? "dialoger" : "texter"}`));
+    val.append(a);
+  }
+  app.append(val);
+}
+
+function visaLista(kod) {
+  const [, rubrik, under, ordkort] = DIALEKTER.find(x => x[0] === kod);
+  document.title = rubrik + " – texter";
+  app.innerHTML = "";
+  toprad("← Ordkorten", ordkort);
+  app.append(html("header", null, `<h1>${rubrik}</h1><p>${under}</p>`));
+  const andra = DIALEKTER.find(x => x[0] !== kod);
+  const byt = el("a", "back", `${andra[1]} →`);
+  byt.href = "#" + andra[0];
+  byt.style.marginTop = "14px";
+  app.append(byt);
+  const list = el("div", "list");
+  let kap = null;
+  for (const d of TEXTER.filter(d => dial(d) === kod)) {
+    if (d.kapitel !== kap) { kap = d.kapitel; list.append(el("h2", null, "Kapitel " + kap)); }
+    list.append(listRad(d));
   }
   app.append(list);
 }
@@ -174,34 +197,34 @@ async function spelaBit(fil, s, e, line) {
   if (player.readyState >= 1) start(); else player.addEventListener("loadedmetadata", start, { once: true });
 }
 
-function knapparDolj(controls) {
-  let dolda = store(() => JSON.parse(localStorage.getItem(DOLJ_KEY))) || [];
-  // Vanliga knappar: klassen i listan döljer (hide-…). Med data-inv är det tvärtom: av från början,
-  // och klassen i listan visar (show-ar).
+// Knapparna under Visa: allt är av från början. En påslagen knapp sätter sin klass (show-…) på body.
+function visaKnappar(controls) {
+  let pa = store(() => JSON.parse(localStorage.getItem(VISA_KEY))) || [];
   controls.querySelectorAll(".toggle").forEach(btn => {
-    const cls = btn.dataset.cls, inv = !!btn.dataset.inv;
+    const cls = btn.dataset.cls;
     const apply = () => {
-      const iListan = dolda.includes(cls);
-      document.body.classList.toggle(cls, iListan);
-      btn.setAttribute("aria-pressed", String(inv ? iListan : !iListan));
+      document.body.classList.toggle(cls, pa.includes(cls));
+      btn.setAttribute("aria-pressed", String(pa.includes(cls)));
     };
     apply();
     btn.addEventListener("click", () => {
-      dolda = dolda.includes(cls) ? dolda.filter(c => c !== cls) : [...dolda, cls];
-      store(() => localStorage.setItem(DOLJ_KEY, JSON.stringify(dolda)));
+      pa = pa.includes(cls) ? pa.filter(c => c !== cls) : [...pa, cls];
+      store(() => localStorage.setItem(VISA_KEY, JSON.stringify(pa)));
       apply();
     });
   });
 }
 
 function visaText(i) {
-  const d = TEXTER[i], prev = TEXTER[i - 1], nxt = TEXTER[i + 1];
+  const d = TEXTER[i];
+  const samma = TEXTER.filter(x => dial(x) === dial(d));  // föregående/nästa inom samma dialekt
+  const j0 = samma.indexOf(d), prev = samma[j0 - 1], nxt = samma[j0 + 1];
   const P = d.personer || [];
   const bok = d.ljud && d.ljud.bok;
   document.title = `${d.titel_sv} – kapitel ${d.kapitel}`;
   app.innerHTML = "";
   const back = el("a", "back", "☰ Alla texter");
-  back.href = "#";
+  back.href = "#" + dial(d);
   app.append(back);
 
   const head = el("header");
@@ -226,12 +249,12 @@ function visaText(i) {
   app.append(head);
 
   const controls = html("div", "controls", '<span>Visa:</span>' +
-    (latin ? '<button class="toggle" data-cls="show-ar" data-inv="1">Arabiska</button>'
-           : '<button class="toggle" data-cls="hide-tr">Uttal</button>') +
-    '<button class="toggle" data-cls="hide-lit">Ord för ord</button><button class="toggle" data-cls="hide-sv">Svenska</button>');
+    (latin ? '<button class="toggle" data-cls="show-ar">Arabiska</button>'
+           : '<button class="toggle" data-cls="show-tr">Uttal</button>') +
+    '<button class="toggle" data-cls="show-lit">Ord för ord</button><button class="toggle" data-cls="show-sv">Svenska</button>');
   controls.setAttribute("role", "group");
   app.append(controls);
-  knapparDolj(controls);
+  visaKnappar(controls);
 
   const dialog = el("div");
   const fullAr = el("div", latin ? "full-lat" : "full-ar"), fullSv = el("div", "full-sv");
@@ -305,7 +328,7 @@ function visaText(i) {
   const l = prev ? el("a", "prev", "← " + prev.titel_sv) : el("span", "prev");
   if (prev) l.href = "#" + namn(prev);
   const m = el("a", "alla", "☰ Alla texter");
-  m.href = "#";
+  m.href = "#" + dial(d);
   const r = nxt ? el("a", "next", nxt.titel_sv + " →") : el("span", "next");
   if (nxt) r.href = "#" + namn(nxt);
   fot.append(l, m, r);
