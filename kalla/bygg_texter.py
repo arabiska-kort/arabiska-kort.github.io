@@ -169,6 +169,12 @@ button.back { font: inherit; font-size: .9rem; cursor: pointer; }
 }
 .login button:disabled { opacity: .6; cursor: wait; }
 .login .fel { color: #c0392b; margin: 0; min-height: 1.2em; font-weight: 600; }
+.lat-row { display: flex; align-items: center; gap: 10px; justify-content: space-between; }
+.lat { font-size: 1.3rem; font-weight: 600; line-height: 1.5; margin: 6px 0 4px; }
+.line.playing .lat { color: var(--who); }
+.arx { display: none; }
+.show-ar .arx { display: block; }
+p.arx { font-family: var(--font-ar); font-size: 1.55rem; line-height: 1.9; direction: rtl; text-align: right; color: var(--muted); margin: 0 0 2px; }
 .full-lat { font-size: 1.08rem; line-height: 1.8; }
 .full-lat p { margin: 6px 0; }
 .list h2.dial { font-size: 1.5rem; color: var(--text); margin: 32px 0 0; }
