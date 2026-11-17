@@ -141,9 +141,12 @@ function listRad(d) {
   const v = el("div");
   v.append(el("div", "sv-t", d.titel_sv),
     el("div", "meta", `${leb(d) ? "Dialog" : "Text"} ${d.text}${d.ljud ? " · 🔊 ljud" : ""} · ${d.intro}`));
-  const ar = el("div", "ar-t", d.titel_ar);
-  ar.lang = "ar";
-  a.append(v, ar);
+  a.append(v);
+  if (!leb(d)) {  // libanesiska har ingen arabisk titel i boken
+    const ar = el("div", "ar-t", d.titel_ar);
+    ar.lang = "ar";
+    a.append(ar);
+  }
   return a;
 }
 
@@ -173,12 +176,14 @@ async function spelaBit(fil, s, e, line) {
 
 function knapparDolj(controls) {
   let dolda = store(() => JSON.parse(localStorage.getItem(DOLJ_KEY))) || [];
+  // Vanliga knappar: klassen i listan döljer (hide-…). Med data-inv är det tvärtom: av från början,
+  // och klassen i listan visar (show-ar).
   controls.querySelectorAll(".toggle").forEach(btn => {
-    const cls = btn.dataset.cls;
+    const cls = btn.dataset.cls, inv = !!btn.dataset.inv;
     const apply = () => {
-      const hidden = dolda.includes(cls);
-      document.body.classList.toggle(cls, hidden);
-      btn.setAttribute("aria-pressed", String(!hidden));
+      const iListan = dolda.includes(cls);
+      document.body.classList.toggle(cls, iListan);
+      btn.setAttribute("aria-pressed", String(inv ? iListan : !iListan));
     };
     apply();
     btn.addEventListener("click", () => {
@@ -200,7 +205,8 @@ function visaText(i) {
   app.append(back);
 
   const head = el("header");
-  const art = el("p", "ar-title", d.titel_ar);
+  const latin = d.skrift === "latin";  // bokens text är en latinsk transkription (libanesiska)
+  const art = el("p", "ar-title" + (latin ? " arx" : ""), d.titel_ar);
   art.lang = "ar";
   head.append(art, el("h1", null, d.titel_sv), el("p", null,
     `${leb(d) ? "Libanesiska · " : ""}Kapitel ${d.kapitel}, ${leb(d) ? "dialog" : "text"} ${d.text} · ${d.intro}`));
@@ -219,15 +225,15 @@ function visaText(i) {
   }
   app.append(head);
 
-  const controls = html("div", "controls",
-    '<span>Visa:</span><button class="toggle" data-cls="hide-tr">Uttal</button>' +
+  const controls = html("div", "controls", '<span>Visa:</span>' +
+    (latin ? '<button class="toggle" data-cls="show-ar" data-inv="1">Arabiska</button>'
+           : '<button class="toggle" data-cls="hide-tr">Uttal</button>') +
     '<button class="toggle" data-cls="hide-lit">Ord för ord</button><button class="toggle" data-cls="hide-sv">Svenska</button>');
   controls.setAttribute("role", "group");
   app.append(controls);
   knapparDolj(controls);
 
   const dialog = el("div");
-  const latin = d.skrift === "latin";  // bokens text är en latinsk transkription
   const fullAr = el("div", latin ? "full-lat" : "full-ar"), fullSv = el("div", "full-sv");
   if (!latin) fullAr.lang = "ar";
   const farg = v => "p" + (P[v].f != null ? P[v].f : v % 3);
@@ -239,10 +245,12 @@ function visaText(i) {
     card.append(tag);
     del.rader.forEach(([ar, tr, lit, sv], j) => {
       const line = el("div", "line");
-      const row = el("div", "ar-row");
-      const arEl = el("p", "ar", ar);
-      arEl.lang = "ar";
-      row.append(arEl);
+      // Standardarabiska: arabiskan stor och uttalet under. Libanesiska: bokens text stor,
+      // och arabisk skrift under som bara visas när "Arabiska" är påslaget.
+      const row = el("div", latin ? "lat-row" : "ar-row");
+      const huvud = latin ? el("p", "lat", tr) : el("p", "ar", ar);
+      if (!latin) huvud.lang = "ar";
+      row.append(huvud);
       const tid = del.tider && del.tider[j];
       if (bok && tid) {
         const b = el("button", "play", "▶");
@@ -250,7 +258,9 @@ function visaText(i) {
         b.addEventListener("click", () => spelaBit(bok, tid[0], tid[1], line));
         row.append(b);
       }
-      line.append(row, el("div", "tr", tr));
+      line.append(row);
+      if (latin) { const a = el("p", "arx", ar); a.lang = "ar"; line.append(a); }
+      else line.append(el("div", "tr", tr));
       if (lit) line.append(el("div", "lit", lit));
       line.append(el("div", "sv", sv));
       card.append(line);
